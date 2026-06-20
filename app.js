@@ -4,7 +4,7 @@
  * Se mantiver o valor padrão, o aplicativo funcionará no "Modo de Demonstração"
  * utilizando dados salvos localmente no navegador (localStorage).
  */
-const API_URL = "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI";
+const API_URL = "https://script.google.com/macros/library/d/1M54vPbvTDihjnBXGQsBJuezXXHg-9o9jtpSgfuv19OHTQmRvYwfDABpd/3";
 
 // Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 2026-2029
 const MOCK_KEYS = {
