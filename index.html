@@ -19,6 +19,9 @@
   
   <!-- Estilos Customizados baseados no Design System V2/V3 -->
   <link rel="stylesheet" href="style.css">
+  <style>
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
@@ -29,17 +32,13 @@
       <div class="login-header">
         <div class="login-logo-icon"><i class="fa-solid fa-key"></i></div>
         <h2>Portal de Emendas CMS</h2>
-        <p>Insira sua Chave de Acesso e Senha para entrar no painel institucional.</p>
+        <p>Insira sua Chave de Acesso para entrar no painel institucional.</p>
       </div>
       <form id="login-form">
         <div class="form-group">
           <label for="login-key">Chave de Acesso *</label>
-          <input type="text" id="login-key" placeholder="Ex: CMS-JOEL-01" required>
-        </div>
-        <div class="form-group" style="margin-top: 12px;">
-          <label for="login-password">Senha de Acesso *</label>
-          <input type="password" id="login-password" placeholder="Sua senha (Primeiro nome em maiúsculo no 1º acesso)" required>
-          <span class="error-msg" id="login-error-msg">Chave ou senha incorretas.</span>
+          <input type="password" id="login-key" placeholder="Sua chave (Ex: JOEL no 1º acesso)" required>
+          <span class="error-msg" id="login-error-msg">Chave de acesso incorreta ou inexistente.</span>
         </div>
         <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 20px;">
           <span class="login-btn-text">Entrar no Portal</span>
@@ -49,56 +48,56 @@
     </div>
   </div>
 
-  <!-- Modal Forçar Alteração de Senha (Primeiro Acesso) -->
+  <!-- Modal Forçar Alteração de Chave (Primeiro Acesso) -->
   <div id="force-password-overlay" class="login-overlay hidden">
     <div class="login-card" style="border: 2px solid var(--cms-yellow);">
       <div class="stripe" style="background: var(--cms-yellow);"></div>
       <div class="login-header" style="margin-top: 15px;">
         <div class="login-logo-icon" style="background: var(--cms-yellow); color: var(--cms-navy);"><i class="fa-solid fa-shield-halved"></i></div>
         <h2>Primeiro Acesso Detectado</h2>
-        <p>Para sua segurança, você deve alterar a sua senha inicial antes de prosseguir no portal.</p>
+        <p>Para sua segurança, você deve redefinir sua Chave de Acesso inicial. A nova chave deve começar com o seu primeiro nome em maiúsculo (ex: JOEL123).</p>
       </div>
       <form id="force-password-form">
         <div class="form-group">
-          <label for="force-new-password">Nova Senha *</label>
-          <input type="password" id="force-new-password" placeholder="Mínimo 4 caracteres" required>
+          <label for="force-new-password">Nova Chave de Acesso *</label>
+          <input type="text" id="force-new-password" placeholder="Ex: JOEL123" required>
         </div>
         <div class="form-group" style="margin-top: 12px;">
-          <label for="force-confirm-password">Confirmar Nova Senha *</label>
-          <input type="password" id="force-confirm-password" placeholder="Repita a nova senha" required>
-          <span class="error-msg" id="force-password-error-msg">As senhas não coincidem.</span>
+          <label for="force-confirm-password">Confirmar Nova Chave *</label>
+          <input type="text" id="force-confirm-password" placeholder="Repita a nova chave" required>
+          <span class="error-msg" id="force-password-error-msg">As chaves de acesso não coincidem.</span>
         </div>
         <button type="submit" class="submit-btn" id="btn-force-submit" style="width: 100%; margin-top: 20px; background: var(--cms-green);">
-          <span class="btn-text">Salvar Nova Senha</span>
+          <span class="btn-text">Salvar Nova Chave</span>
           <span class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Salvando...</span>
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Modal Geral de Alteração de Senha (Topbar) -->
+  <!-- Modal Geral de Alteração de Chave (Topbar) -->
   <div id="change-password-modal" class="modal hidden">
     <div class="modal-card" style="max-width: 400px;">
       <div class="stripe"></div>
       <div class="modal-header">
-        <h2>Alterar Senha do Painel</h2>
+        <h2>Alterar Chave de Acesso</h2>
         <button type="button" class="close-modal-btn" id="btn-close-pwd-modal"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <form id="general-change-pwd-form">
         <div style="padding: 25px; display: flex; flex-direction: column; gap: 15px;">
           <div class="form-group">
-            <label for="general-new-password">Nova Senha *</label>
-            <input type="password" id="general-new-password" placeholder="Mínimo 4 caracteres" required>
+            <label for="general-new-password">Nova Chave de Acesso *</label>
+            <input type="text" id="general-new-password" placeholder="Ex: JOEL2026" required>
           </div>
           <div class="form-group">
-            <label for="general-confirm-password">Confirmar Nova Senha *</label>
-            <input type="password" id="general-confirm-password" placeholder="Repita a nova senha" required>
-            <span class="error-msg" id="general-pwd-error-msg">As senhas não coincidem.</span>
+            <label for="general-confirm-password">Confirmar Nova Chave *</label>
+            <input type="text" id="general-confirm-password" placeholder="Repita a nova chave" required>
+            <span class="error-msg" id="general-pwd-error-msg">As chaves não coincidem.</span>
           </div>
         </div>
         <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-pwd-modal">Cancelar</button>
-          <button type="submit" class="submit-btn" id="btn-save-pwd-modal" style="padding: 8px 24px;">Atualizar Senha</button>
+          <button type="submit" class="submit-btn" id="btn-save-pwd-modal" style="padding: 8px 24px;">Atualizar Chave</button>
         </div>
       </form>
     </div>
@@ -254,7 +253,7 @@
     <!-- Área do Usuário Logado -->
     <div class="user-status-area" id="user-status-area">
       <span class="user-info-text"><i class="fa-solid fa-user-shield"></i> <span id="user-display-name">Carregando...</span></span>
-      <button class="logout-btn" id="btn-open-change-password" title="Alterar Senha" style="margin-right: 8px;"><i class="fa-solid fa-lock"></i></button>
+      <button class="logout-btn" id="btn-open-change-password" title="Alterar Chave de Acesso" style="margin-right: 8px;"><i class="fa-solid fa-lock"></i></button>
       <button class="logout-btn" id="btn-logout" title="Sair do Portal"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </nav>

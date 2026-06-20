@@ -1402,3 +1402,8 @@ footer {
   gap: 10px;
 }
 
+/* GLOBAL UTILITY CLASS */
+.hidden {
+  display: none !important;
+}
+

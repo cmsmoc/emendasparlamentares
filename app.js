@@ -6,76 +6,75 @@
  */
 const API_URL = "https://script.google.com/macros/library/d/1M54vPbvTDihjnBXGQsBJuezXXHg-9o9jtpSgfuv19OHTQmRvYwfDABpd/3";
 
-// Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 2026-2029
-const MOCK_KEYS = {
+// Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 20const MOCK_KEYS = {
   "REGULACAO-CMSMOC-2026": { usuario: "SETOR DE REGULAÇÃO DA SECRETARIA MUNICIPAL DE SAÚDE (Regulação CMSMOC)", perfil: "Administrador" },
   "WEBMASTER-ADMIN-CMS": { usuario: "Webmaster Técnico CMS", perfil: "Webmaster" },
   
-  // Conselheiros mapeados a partir da planilha oficial
-  "CMS-JOEL-01": { usuario: "Joel Francisco Borges (CLS Jardim Primavera)", perfil: "Conselheiro" },
-  "CMS-AMANDA-02": { usuario: "Amanda Mendes (CLS Independência)", perfil: "Conselheiro" },
-  "CMS-EMANUELA-03": { usuario: "Emanuela Tomaz (CLS Renascença)", perfil: "Conselheiro" },
-  "CMS-SERGIO-04": { usuario: "Sérgio Peres (CLS Planalto)", perfil: "Conselheiro" },
-  "CMS-DANIELLE-05": { usuario: "Danielle Santos Sousa (CLS Vila Atlântica)", perfil: "Conselheiro" },
-  "CMS-LARYSSA-06": { usuario: "Laryssa Félix (CLS Delfino Magalhães)", perfil: "Conselheiro" },
-  "CMS-LUCIANA-07": { usuario: "Luciana de Jesus Santos Cardoso (Assembleia de Deus)", perfil: "Conselheiro" },
-  "CMS-JULIO-08": { usuario: "Julio César Pereira (Assembleia de Deus)", perfil: "Conselheiro" },
-  "CMS-ROBERTA-09": { usuario: "Roberta Cunha Mota Santos (Fundação Sara)", perfil: "Conselheiro" },
-  "CMS-ELIZETE-10": { usuario: "Elizete Santos Barbosa (Fundação Sara)", perfil: "Conselheiro" },
-  "CMS-MARIA-11": { usuario: "Maria dos Reis Ribeiro Dias (Pastoral da Saúde)", perfil: "Conselheiro" },
-  "CMS-CRISTINA-12": { usuario: "Cristina da Silva Queiroz Landgraf (Pastoral da Saúde)", perfil: "Conselheiro" },
-  "CMS-MARILDA-13": { usuario: "Marilda Batista da Silva (Assoc. Consciência Ativa)", perfil: "Conselheiro" },
-  "CMS-FABIANA-14": { usuario: "Fabiana Pereira Mori (Assoc. Consciência Ativa)", perfil: "Conselheiro" },
-  "CMS-FARLEY-15": { usuario: "Farley Sindeaux Ribeiro (ANDA)", perfil: "Conselheiro" },
-  "CMS-JAMILSON-16": { usuario: "Jamilson Moreira Gandra (ANDA)", perfil: "Conselheiro" },
-  "CMS-FERNANDO-17": { usuario: "Fernando Antônio Dias de Andrade (ADEMC)", perfil: "Conselheiro" },
-  "CMS-HELDER-18": { usuario: "Helder Lopes Souza (ADEMC)", perfil: "Conselheiro" },
-  "CMS-NAIARA-19": { usuario: "Naiara Oliveira (Sindicato Rural CUT)", perfil: "Conselheiro" },
-  "CMS-LUIZ-20": { usuario: "Luiz Antônio Mendes (Sindicato Rural CUT)", perfil: "Conselheiro" },
-  "CMS-ANIELE-21": { usuario: "Aniele Costa Silva (Lar Betânia)", perfil: "Conselheiro" },
-  "CMS-JAQUELINE-22": { usuario: "Jaqueline da Conceição Camelo (Lar das Velhinhas)", perfil: "Conselheiro" },
-  "CMS-PAULO-23": { usuario: "Paulo Thiago Carvalho Soares Ribeiro (Arco-Íris do Amor)", perfil: "Conselheiro" },
-  "CMS-JOSE-24": { usuario: "José Cândido de Souza Filho (MGG LGBTQIAPN+)", perfil: "Conselheiro" },
-  "CMS-RAFAEL-25": { usuario: "Rafael Carvalho Maciel (Rotary Clube)", perfil: "Conselheiro" },
-  "CMS-JULIANA-26": { usuario: "Juliana Aparecida de Oliveira (Rotary Clube)", perfil: "Conselheiro" },
-  "CMS-ISABEL-27": { usuario: "Isabel Macedo Avelar (UPM)", perfil: "Conselheiro" },
-  "CMS-MARISA-28": { usuario: "Marisa Cantidio Oliveira (UPM)", perfil: "Conselheiro" },
-  "CMS-CLAUDIA-29": { usuario: "Cláudia Rocha Biscotto (Clínica Rosa Mística)", perfil: "Conselheiro" },
-  "CMS-PATRICIA-30": { usuario: "Patrícia Soares Gomes (Clínica Rosa Mística)", perfil: "Conselheiro" },
-  "CMS-CINDY-31": { usuario: "Cindy Almeyda Reis (Associação Presente)", perfil: "Conselheiro" },
-  "CMS-SANDRA-32": { usuario: "Sandra Simony Mendes Gonçalves (Associação Presente)", perfil: "Conselheiro" },
-  "CMS-SHEILA-33": { usuario: "Sheila Silva Mendes (ABO)", perfil: "Conselheiro" },
-  "CMS-MARIANA-34": { usuario: "Mariana Cristina Meira Cambuí (ABO)", perfil: "Conselheiro" },
-  "CMS-ERNANDES-35": { usuario: "Ernandes Rodrigues Moraes (COREN Nível Médio)", perfil: "Conselheiro" },
-  "CMS-JULIO-36": { usuario: "Júlio César Araújo Lopes (COREN Nível Médio)", perfil: "Conselheiro" },
-  "CMS-FERNANDA-37": { usuario: "Fernanda Fagundes Azevedo Sindeaux (COREN Superior)", perfil: "Conselheiro" },
-  "CMS-RICARDO-38": { usuario: "Ricardo Soares de Oliveira (COREN Superior)", perfil: "Conselheiro" },
-  "CMS-CLAUDIO-39": { usuario: "Cláudio Luiz de Souza Santos (SEEMG)", perfil: "Conselheiro" },
-  "CMS-MONICA-40": { usuario: "Mônica de Fátima Fernandes Ferreira (SEEMG)", perfil: "Conselheiro" },
-  "CMS-WASHINGTON-41": { usuario: "Washington Luiz Carvalho Souto (SIEESS)", perfil: "Conselheiro" },
-  "CMS-JUCELIO-42": { usuario: "Jucélio Bernardes da Silva (SIEESS)", perfil: "Conselheiro" },
-  "CMS-EDNE-43": { usuario: "Edné Silva Soares (SINDE-SAÚDE)", perfil: "Conselheiro" },
-  "CMS-GRACIELE-44": { usuario: "Graciele Gonçalves Ferreira (SINDE-SAÚDE)", perfil: "Conselheiro" },
-  "CMS-EDMILSON-45": { usuario: "Edmilson Alves da Silva (SINDSEP)", perfil: "Conselheiro" },
-  "CMS-EDVALDO-46": { usuario: "Edvaldo de Freitas Francisco (SINDSEP)", perfil: "Conselheiro" },
-  "CMS-ROBERTO-47": { usuario: "Roberto Coelho Ferreira (SINDTRRAUX)", perfil: "Conselheiro" },
-  "CMS-AVILMAR-48": { usuario: "Avilmar Augusto Pereira (SINDTRRAUX)", perfil: "Conselheiro" },
-  "CMS-DALTON-49": { usuario: "Dalton Caldeira (Hosp. Clemente de Faria)", perfil: "Conselheiro" },
-  "CMS-HENRIQUE-50": { usuario: "Henrique Andrade (Hosp. Clemente de Faria)", perfil: "Conselheiro" },
-  "CMS-NUBIA-51": { usuario: "Núbia Carneiro Guimarães (GRAPPA)", perfil: "Conselheiro" },
-  "CMS-KELLY-52": { usuario: "Kelly Mendes Fagundes (Fund. Capelo Gaivota)", perfil: "Conselheiro" },
-  "CMS-NAYRA-53": { usuario: "Nayra Cristine Lacerda Lourens (Santa Casa)", perfil: "Conselheiro" },
-  "CMS-CRISTIANO-54": { usuario: "Cristiano Júnior (Hosp. Mário Ribeiro)", perfil: "Conselheiro" },
-  "CMS-HERICK-55": { usuario: "Hérick Rodrigues Araújo (Hosp. Dilson Godinho)", perfil: "Conselheiro" },
-  "CMS-EMILLY-56": { usuario: "Emilly Eunice Antunes Dias Matos (APAE)", perfil: "Conselheiro" },
-  "CMS-EDUARDO-57": { usuario: "Eduardo Luiz da Silva (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-JOAO-58": { usuario: "João Alves Pereira (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-MARIA-59": { usuario: "Maria Clara Lélis Ramos Cordeira (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-RAIMARA-60": { usuario: "Raimara Gonçalves Pereira (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-MARCIO-61": { usuario: "Márcio Cardoso Silva (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-MARCOS-62": { usuario: "Marcos Dangelis Aguiar (Gestão Pública)", perfil: "Conselheiro" },
-  "CMS-THALLYTA-63": { usuario: "Thallyta de Sousa Lima (GRS Montes Claros)", perfil: "Conselheiro" },
-  "CMS-VALDEMAR-64": { usuario: "Valdemar Rodrigues dos Anjos (GRS)", perfil: "Conselheiro" }
+  // Conselheiros com suas chaves padrão (Primeiro Nome em maiúsculo, sem acentos, com cadeira em caso de duplicidade)
+  "JOEL": { usuario: "Joel Francisco Borges (CLS Jardim Primavera)", perfil: "Conselheiro" },
+  "AMANDA": { usuario: "Amanda Mendes Soares (CLS Independência)", perfil: "Conselheiro" },
+  "EMANUELA": { usuario: "Emanuela Tomas da Silva Conceição (CLS Renascença)", perfil: "Conselheiro" },
+  "SERGIO": { usuario: "Sérgio Peres (CLS Planalto)", perfil: "Conselheiro" },
+  "DANIELLE": { usuario: "Danielle Santos Sousa (CLS Vila Atlântica)", perfil: "Conselheiro" },
+  "LARYSSA": { usuario: "Laryssa Félix (CLS Delfino Magalhães)", perfil: "Conselheiro" },
+  "LUCIANA": { usuario: "Luciana de Jesus Santos Cardoso (Assembleia de Deus Madureira)", perfil: "Conselheiro" },
+  "JULIO8": { usuario: "Júlio César Pereira (Assembleia de Deus Madureira)", perfil: "Conselheiro" },
+  "ROBERTA": { usuario: "Roberta Cunha Mota Santos (Fundação Sara Albuquerque)", perfil: "Conselheiro" },
+  "ELIZETE": { usuario: "Elizete Santos Barbosa (Fundação Sara Albuquerque)", perfil: "Conselheiro" },
+  "MARIA11": { usuario: "Maria dos Reis Ribeiro Dias (Arquidiocese de Montes Claros (Pastoral da Saúde))", perfil: "Conselheiro" },
+  "GILSON": { usuario: "Gilson Mendes de Almeida (Arquidiocese de Montes Claros (Pastoral da Saúde))", perfil: "Conselheiro" },
+  "MARILDA": { usuario: "Marilda Batista da Silva (Associação Consciência Ativa)", perfil: "Conselheiro" },
+  "FABIANA": { usuario: "Fabiana Pereira Mori (Associação Consciência Ativa)", perfil: "Conselheiro" },
+  "FARLEY": { usuario: "Farley Sindeaux Ribeiro (ANDA (Associação Norte Mineira de Apoio ao Autista))", perfil: "Conselheiro" },
+  "JAMILSON": { usuario: "Jamilson Gandra Moreira (ANDA (Associação Norte Mineira de Apoio ao Autista))", perfil: "Conselheiro" },
+  "FERNANDO": { usuario: "Fernando Antônio Dias de Andrade (ADEMOC)", perfil: "Conselheiro" },
+  "HELDER": { usuario: "Helder Lopes Souza (ADEMOC)", perfil: "Conselheiro" },
+  "NAIARA": { usuario: "Naiara Oliveira Silva (Sindicato dos Trabalhadores Rurais (CUT))", perfil: "Conselheiro" },
+  "LUIZ": { usuario: "Luiz Antônio Mendes (Sindicato dos Trabalhadores Rurais (CUT))", perfil: "Conselheiro" },
+  "ANIELLY": { usuario: "Anielly Costa Silva (Lar Betânia)", perfil: "Conselheiro" },
+  "JAQUELINE": { usuario: "Jaqueline da Conceição Camelo (Lar das Velhinhas)", perfil: "Conselheiro" },
+  "PAULO": { usuario: "Paulo Thiago Carvalho Soares Ribeiro (Associação Arco-Íris do Amor)", perfil: "Conselheiro" },
+  "JOSE": { usuario: "José Cândido de Souza Filho (MGG (Movimento LBGTQIAPN+ dos Gerais))", perfil: "Conselheiro" },
+  "RAFAEL": { usuario: "Rafael Carvalho Maciel (Rotary Clube)", perfil: "Conselheiro" },
+  "JULIANA": { usuario: "Juliana Aparecida de Oliveira (Rotary Clube)", perfil: "Conselheiro" },
+  "ISABEL": { usuario: "Isabel Macedo Avelar (UPM (União Popular da Mulher de Montes Claros))", perfil: "Conselheiro" },
+  "MARISA": { usuario: "Marisa Cantidio Oliveira (UPM (União Popular da Mulher de Montes Claros))", perfil: "Conselheiro" },
+  "CLAUDIA": { usuario: "Cláudia Rocha Biscotto (Clínica Rosa Mística)", perfil: "Conselheiro" },
+  "PATRICIA": { usuario: "Patrícia Soares Gomes (Clínica Rosa Mística)", perfil: "Conselheiro" },
+  "CINDY": { usuario: "Cindy Almeyda Reis (Associação Presente)", perfil: "Conselheiro" },
+  "SANDRA": { usuario: "Sandra Simony Mendes Gonçalves Carnielle (Associação Presente)", perfil: "Conselheiro" },
+  "SHEILLA": { usuario: "Sheilla Silva Mendes (ABO (Associação Brasileira de Odontologia))", perfil: "Conselheiro" },
+  "MARIANA": { usuario: "Mariana Cristina Meira Cambuí (ABO (Associação Brasileira de Odontologia))", perfil: "Conselheiro" },
+  "ERNANDES": { usuario: "Ernandes Rodrigues Moraes (COREN-MG (Nível Médio))", perfil: "Conselheiro" },
+  "JULIO36": { usuario: "Júlio César Araújo Lopes (COREN-MG (Nível Médio))", perfil: "Conselheiro" },
+  "FERNANDA": { usuario: "Fernanda Fagundes Azevedo (COREN-MG (Nível Superior))", perfil: "Conselheiro" },
+  "RICARDO": { usuario: "Ricardo Soares de Oliveira (COREN-MG (Nível Superior))", perfil: "Conselheiro" },
+  "CLAUDIO": { usuario: "Cláudio Luís de Souza Santos (SEEMG)", perfil: "Conselheiro" },
+  "MONICA": { usuario: "Mônica de Fátima Fernandes Ferreira (SEEMG)", perfil: "Conselheiro" },
+  "WASHINGTON": { usuario: "Washington Luis Carvalho Souto (SIEESS-MG)", perfil: "Conselheiro" },
+  "JUCIELIO": { usuario: "Jucielio Bernardes da Silva (SIEESS-MG)", perfil: "Conselheiro" },
+  "EDINE": { usuario: "Ediné Silva Soares (SINDE-SAÚDE-MG)", perfil: "Conselheiro" },
+  "IMACULADA": { usuario: "Imaculada Conceição Barbosa (SINDE-SAÚDE-MG)", perfil: "Conselheiro" },
+  "EDMILSON": { usuario: "Edmilson Alves da Silva (SINDSEP-MG)", perfil: "Conselheiro" },
+  "EDVALDO": { usuario: "Edvaldo de Freitas Francisco (SINDSEP-MG)", perfil: "Conselheiro" },
+  "ROBERTO": { usuario: "Roberto Coelho Ferreira (SINDTRRAUX)", perfil: "Conselheiro" },
+  "AVILMAR": { usuario: "Avilmar Augusto Pereira (SINDTRRAUX)", perfil: "Conselheiro" },
+  "IURI": { usuario: "Iuri Simões Mota (Hospital Universitário Clemente Faria)", perfil: "Conselheiro" },
+  "SUELEN": { usuario: "Suelen dos Santos Ferreira (Hospital Universitário Clemente Faria)", perfil: "Conselheiro" },
+  "NUBIA": { usuario: "Núbia Carneiro Guimarães (GRAPPA)", perfil: "Conselheiro" },
+  "KELLY": { usuario: "Kelly Mendes Fagundes (Fundação Capelo Gaivota)", perfil: "Conselheiro" },
+  "NAYRA": { usuario: "Nayra Cristine Lacerda Lourens (Santa Casa de Montes Claros)", perfil: "Conselheiro" },
+  "CRISTIANO": { usuario: "Cristiano Júnior (Hospital das Clínicas Dr. Mário Ribeiro)", perfil: "Conselheiro" },
+  "HERICK": { usuario: "Herick Rodrigues Araújo (Hospital Dilson Godinho)", perfil: "Conselheiro" },
+  "EMILLE": { usuario: "Emille Eunice Antunes Dias Matos (APAE / Fundação Vovó Clarice)", perfil: "Conselheiro" },
+  "EDUARDO": { usuario: "Eduardo Luiz da Silva (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "JOAO": { usuario: "João Alves Pereira (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "MARIA59": { usuario: "Maria Clara Lelis Ramos Cardoso (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "RAIMARA": { usuario: "Raimara Gonçalves Pereira (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "MARCIO": { usuario: "Márcio Cardoso Silva (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "MARCOS": { usuario: "Marcos Dangelis Aguiar (Secretaria Municipal de Saúde)", perfil: "Conselheiro" },
+  "THALLYTA": { usuario: "Thallyta de Sousa Lima (GRS (Gerência Regional de Saúde))", perfil: "Conselheiro" },
+  "VALDEMAR": { usuario: "Valdemar Rodrigues dos Anjos (GRS (Gerência Regional de Saúde))", perfil: "Conselheiro" }
 };
 
 // Banco de dados simulado inicial para demonstração (Emendas)
@@ -160,7 +159,6 @@ let uploadedFileName = "";
 const loginOverlay = document.getElementById("login-overlay");
 const loginForm = document.getElementById("login-form");
 const loginKeyInput = document.getElementById("login-key");
-const loginPasswordInput = document.getElementById("login-password");
 const loginErrorMsg = document.getElementById("login-error-msg");
 const btnLogin = document.getElementById("btn-login");
 const userDisplayName = document.getElementById("user-display-name");
@@ -385,44 +383,45 @@ function initTabs() {
 // EVENTO DE LOGIN
 async function handleLoginSubmit(e) {
   e.preventDefault();
-  const key = loginKeyInput.value.trim();
-  const pwd = loginPasswordInput.value.trim();
-  if (!key || !pwd) return;
+  const key = loginKeyInput.value.trim().toUpperCase();
+  if (!key) return;
   
   btnLogin.disabled = true;
   btnLogin.querySelector(".login-btn-text").classList.add("hidden");
   btnLogin.querySelector(".login-spinner").classList.remove("hidden");
   loginKeyInput.parentElement.classList.remove("invalid");
-  loginPasswordInput.parentElement.classList.remove("invalid");
   
-  if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+  const isMock = checkIsMockMode();
+  
+  if (isMock) {
     // MOCK LOGIN STATEFUL
     setTimeout(() => {
-      const match = MOCK_KEYS[key];
+      const chaves = obterChavesMock();
+      let match = null;
+      for (const k in chaves) {
+        if (chaves[k].chave.toUpperCase() === key) {
+          match = chaves[k];
+          break;
+        }
+      }
+      
       if (match) {
-        const correctPwd = obterSenhaAtualMock(key);
-        if (pwd === correctPwd) {
-          tempUser = { chave: key, usuario: match.usuario, perfil: match.perfil };
-          
-          const primeiroAcesso = obterPrimeiroAcessoMock(key);
-          if (primeiroAcesso) {
-            // Abre o modal de alteração obrigatória
-            forcePasswordOverlay.classList.remove("hidden");
-          } else {
-            currentUser = tempUser;
-            localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-            applyUserPermissions();
-            loginOverlay.classList.add("hidden");
-            loadDashboardData();
-            loginForm.reset();
-          }
+        tempUser = { chave: match.chave, usuario: match.usuario, perfil: match.perfil };
+        
+        if (match.primeiroAcesso) {
+          // Abre o modal de alteração obrigatória
+          forcePasswordOverlay.classList.remove("hidden");
         } else {
-          loginPasswordInput.parentElement.classList.add("invalid");
-          loginErrorMsg.textContent = "Senha incorreta para esta chave.";
+          currentUser = tempUser;
+          localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+          applyUserPermissions();
+          loginOverlay.classList.add("hidden");
+          loadDashboardData();
+          loginForm.reset();
         }
       } else {
         loginKeyInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = "Chave de acesso inválida.";
+        loginErrorMsg.textContent = "Chave de acesso incorreta ou inexistente.";
       }
       btnLogin.disabled = false;
       btnLogin.querySelector(".login-btn-text").classList.remove("hidden");
@@ -432,7 +431,6 @@ async function handleLoginSubmit(e) {
     try {
       const payload = {
         chave: key,
-        senha: pwd,
         acao: "auth",
         clientIp: clientInfo.ip,
         clientLoc: clientInfo.loc,
@@ -463,8 +461,8 @@ async function handleLoginSubmit(e) {
           loginForm.reset();
         }
       } else {
-        loginPasswordInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = result.message || "Erro nas credenciais.";
+        loginKeyInput.parentElement.classList.add("invalid");
+        loginErrorMsg.textContent = result.message || "Chave de acesso incorreta ou inexistente.";
       }
     } catch (err) {
       loginKeyInput.parentElement.classList.add("invalid");
@@ -486,22 +484,32 @@ function handleLogout() {
   loginOverlay.classList.remove("hidden");
 }
 
-// ── FLUXO DE ALTERAÇÃO DE SENHA ──
+// ── FLUXO DE ALTERAÇÃO DE CHAVE ──
 
 function initPasswordModals() {
   // Modal de primeiro acesso obrigatório
   forcePasswordForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const newPwd = forceNewPasswordInput.value.trim();
-    const confPwd = forceConfirmPasswordInput.value.trim();
+    const newKey = forceNewPasswordInput.value.trim().toUpperCase();
+    const confKey = forceConfirmPasswordInput.value.trim().toUpperCase();
     
-    if (newPwd.length < 4) {
-      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "A senha deve ter pelo menos 4 caracteres.");
+    if (newKey.length < 4) {
+      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "A nova chave deve ter pelo menos 4 caracteres.");
       return;
     }
     
-    if (newPwd !== confPwd) {
-      showInputError(forceConfirmPasswordInput, forcePasswordErrorMsg, "As senhas não conferem.");
+    if (newKey !== confKey) {
+      showInputError(forceConfirmPasswordInput, forcePasswordErrorMsg, "As chaves não conferem.");
+      return;
+    }
+    
+    // Validar que começa com o primeiro nome do conselheiro
+    const firstWordOfUser = tempUser.usuario.split("(")[0].trim().split(" ")[0];
+    const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
+    const normalizedNewKey = removerAcentos(newKey).toUpperCase();
+    
+    if (!normalizedNewKey.startsWith(normalizedFirstName)) {
+      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, `A sua nova chave deve começar com o seu primeiro nome: ${normalizedFirstName}`);
       return;
     }
     
@@ -509,10 +517,20 @@ function initPasswordModals() {
     btnForceSubmit.querySelector(".btn-text").classList.add("hidden");
     btnForceSubmit.querySelector(".spinner").classList.remove("hidden");
     
-    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+    const isMock = checkIsMockMode();
+    
+    if (isMock) {
       setTimeout(() => {
-        salvarSenhaMock(tempUser.chave, newPwd);
-        currentUser = tempUser;
+        if (checkMockKeyExists(newKey, tempUser.chave)) {
+          showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "Esta chave já está em uso por outro conselheiro.");
+          btnForceSubmit.disabled = false;
+          btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
+          btnForceSubmit.querySelector(".spinner").classList.add("hidden");
+          return;
+        }
+        
+        salvarNovaChaveMock(tempUser.chave, newKey);
+        currentUser = { chave: newKey, usuario: tempUser.usuario, perfil: tempUser.perfil };
         localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
         applyUserPermissions();
         forcePasswordOverlay.classList.add("hidden");
@@ -522,14 +540,14 @@ function initPasswordModals() {
         btnForceSubmit.disabled = false;
         btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
         btnForceSubmit.querySelector(".spinner").classList.add("hidden");
-        showAlert("success", "Senha Atualizada", "Sua nova senha de acesso foi salva!");
+        showAlert("success", "Chave Atualizada", "Sua nova chave de acesso foi salva!");
       }, 800);
     } else {
       try {
         const payload = {
           chave: tempUser.chave,
-          acao: "alterar_senha",
-          novaSenha: newPwd,
+          acao: "alterar_chave",
+          novaChave: newKey,
           clientIp: clientInfo.ip,
           clientLoc: clientInfo.loc,
           clientUa: clientInfo.ua
@@ -542,19 +560,19 @@ function initPasswordModals() {
         const result = await response.json();
         
         if (result.status === "success") {
-          currentUser = tempUser;
+          currentUser = { chave: newKey, usuario: tempUser.usuario, perfil: tempUser.perfil };
           localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
           applyUserPermissions();
           forcePasswordOverlay.classList.add("hidden");
           loginOverlay.classList.add("hidden");
           loadDashboardData();
           forcePasswordForm.reset();
-          showAlert("success", "Senha Atualizada", "Sua senha foi reconfigurada com sucesso.");
+          showAlert("success", "Chave Atualizada", "Sua nova chave de acesso foi configurada com sucesso.");
         } else {
           showAlert("error", "Erro ao alterar", result.message);
         }
       } catch (err) {
-        showAlert("error", "Erro de Conexão", "Não foi possível enviar a nova senha.");
+        showAlert("error", "Erro de Conexão", "Não foi possível enviar a nova chave.");
       } finally {
         btnForceSubmit.disabled = false;
         btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
@@ -563,7 +581,7 @@ function initPasswordModals() {
     }
   });
 
-  // Modal Geral de Alterar Senha (Topbar)
+  // Modal Geral de Alterar Chave (Topbar)
   btnOpenChangePassword.addEventListener("click", () => {
     generalChangePwdForm.reset();
     generalPwdErrorMsg.parentElement.classList.remove("invalid");
@@ -575,33 +593,52 @@ function initPasswordModals() {
   
   generalChangePwdForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const newPwd = generalNewPasswordInput.value.trim();
-    const confPwd = generalConfirmPasswordInput.value.trim();
+    const newKey = generalNewPasswordInput.value.trim().toUpperCase();
+    const confKey = generalConfirmPasswordInput.value.trim().toUpperCase();
     
-    if (newPwd.length < 4) {
+    if (newKey.length < 4) {
       showInputError(generalNewPasswordInput, generalPwdErrorMsg, "Mínimo 4 caracteres.");
       return;
     }
     
-    if (newPwd !== confPwd) {
-      showInputError(generalConfirmPasswordInput, generalPwdErrorMsg, "As senhas não conferem.");
+    if (newKey !== confKey) {
+      showInputError(generalConfirmPasswordInput, generalPwdErrorMsg, "As chaves não conferem.");
+      return;
+    }
+    
+    // Validar que começa com o primeiro nome do conselheiro
+    const firstWordOfUser = currentUser.usuario.split("(")[0].trim().split(" ")[0];
+    const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
+    const normalizedNewKey = removerAcentos(newKey).toUpperCase();
+    
+    if (!normalizedNewKey.startsWith(normalizedFirstName)) {
+      showInputError(generalNewPasswordInput, generalPwdErrorMsg, `A sua nova chave deve começar com o seu primeiro nome: ${normalizedFirstName}`);
       return;
     }
     
     const btnSave = document.getElementById("btn-save-pwd-modal");
     btnSave.disabled = true;
     
-    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-      salvarSenhaMock(currentUser.chave, newPwd);
-      showAlert("success", "Senha Alterada", "Senha local alterada com sucesso.");
+    const isMock = checkIsMockMode();
+    
+    if (isMock) {
+      if (checkMockKeyExists(newKey, currentUser.chave)) {
+        showInputError(generalNewPasswordInput, generalPwdErrorMsg, "Esta chave já está em uso por outro conselheiro.");
+        btnSave.disabled = false;
+        return;
+      }
+      salvarNovaChaveMock(currentUser.chave, newKey);
+      currentUser.chave = newKey;
+      localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+      showAlert("success", "Chave Alterada", "Chave de acesso alterada com sucesso.");
       changePasswordModal.classList.add("hidden");
       btnSave.disabled = false;
     } else {
       try {
         const payload = {
           chave: currentUser.chave,
-          acao: "alterar_senha",
-          novaSenha: newPwd,
+          acao: "alterar_chave",
+          novaChave: newKey,
           clientIp: clientInfo.ip,
           clientLoc: clientInfo.loc,
           clientUa: clientInfo.ua
@@ -613,7 +650,9 @@ function initPasswordModals() {
         });
         const result = await response.json();
         if (result.status === "success") {
-          showAlert("success", "Senha Alterada", "Sua senha foi alterada no Google Sheets!");
+          currentUser.chave = newKey;
+          localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+          showAlert("success", "Chave Alterada", "Sua chave de acesso foi alterada no Google Sheets!");
           changePasswordModal.classList.add("hidden");
         } else {
           showAlert("error", "Erro ao salvar", result.message);
@@ -627,42 +666,57 @@ function initPasswordModals() {
   });
 }
 
-// ── ASSISTENTE DO MOCK PASSWORD STATEFUL ──
-function obterSenhaPadraoMock(key) {
-  if (key === "WEBMASTER-ADMIN-CMS") return "WEBMASTER";
-  if (key === "REGULACAO-CMSMOC-2026") return "REGULACAO";
-  if (key.startsWith("CMS-")) {
-    return key.split("-")[1]; // Ex: CMS-JOEL-01 -> JOEL
-  }
-  return "1234";
+// ── ASSISTENTE DO MOCK KEY STATEFUL ──
+function checkIsMockMode() {
+  return (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI" || !API_URL.includes("/macros/s/") || !API_URL.includes("/exec"));
 }
 
-function obterSenhaAtualMock(key) {
-  const localPasswords = localStorage.getItem("cms_mock_passwords");
-  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
-  if (passwordsMap[key]) {
-    return passwordsMap[key].senha;
+function obterChavesMock() {
+  const localKeys = localStorage.getItem("cms_mock_keys_v2");
+  if (localKeys) {
+    return JSON.parse(localKeys);
   }
-  return obterSenhaPadraoMock(key);
+  
+  const initialKeys = {};
+  for (const k in MOCK_KEYS) {
+    initialKeys[k] = {
+      usuario: MOCK_KEYS[k].usuario,
+      perfil: MOCK_KEYS[k].perfil,
+      chave: k,
+      primeiroAcesso: (k !== "REGULACAO-CMSMOC-2026" && k !== "WEBMASTER-ADMIN-CMS")
+    };
+  }
+  localStorage.setItem("cms_mock_keys_v2", JSON.stringify(initialKeys));
+  return initialKeys;
 }
 
-function obterPrimeiroAcessoMock(key) {
-  const localPasswords = localStorage.getItem("cms_mock_passwords");
-  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
-  if (passwordsMap[key]) {
-    return passwordsMap[key].primeiroAcesso;
+function checkMockKeyExists(newKey, oldKey) {
+  const chaves = obterChavesMock();
+  for (const k in chaves) {
+    if (chaves[k].chave.toUpperCase() === newKey.toUpperCase() && k !== oldKey) {
+      return true;
+    }
   }
-  return true;
+  return false;
 }
 
-function salvarSenhaMock(key, novaSenha) {
-  const localPasswords = localStorage.getItem("cms_mock_passwords");
-  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
-  passwordsMap[key] = {
-    senha: novaSenha,
-    primeiroAcesso: false
-  };
-  localStorage.setItem("cms_mock_passwords", JSON.stringify(passwordsMap));
+function salvarNovaChaveMock(oldKey, newKey) {
+  const chaves = obterChavesMock();
+  if (chaves[oldKey]) {
+    const data = chaves[oldKey];
+    data.chave = newKey;
+    data.primeiroAcesso = false;
+    
+    delete chaves[oldKey];
+    chaves[newKey] = data;
+    
+    localStorage.setItem("cms_mock_keys_v2", JSON.stringify(chaves));
+  }
+}
+
+function removerAcentos(text) {
+  if (!text) return "";
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 // UPLOAD DE ARQUIVOS
