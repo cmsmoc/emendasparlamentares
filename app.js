@@ -261,6 +261,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   loginForm.addEventListener("submit", handleLoginSubmit);
   btnLogout.addEventListener("click", handleLogout);
   
+  // Toggle de visualização da chave de acesso (senha)
+  const toggleLoginKeyBtn = document.getElementById("toggle-login-key");
+  const toggleLoginKeyIcon = document.getElementById("toggle-login-key-icon");
+  if (toggleLoginKeyBtn && toggleLoginKeyIcon) {
+    toggleLoginKeyBtn.addEventListener("click", () => {
+      if (loginKeyInput.type === "password") {
+        loginKeyInput.type = "text";
+        toggleLoginKeyIcon.classList.remove("fa-eye");
+        toggleLoginKeyIcon.classList.add("fa-eye-slash");
+      } else {
+        loginKeyInput.type = "password";
+        toggleLoginKeyIcon.classList.add("fa-eye");
+        toggleLoginKeyIcon.classList.remove("fa-eye-slash");
+      }
+    });
+  }
+  
   searchInput.addEventListener("input", filterData);
   filterEntidade.addEventListener("change", filterData);
   filterStatus.addEventListener("change", filterData);
@@ -674,7 +691,21 @@ function checkIsMockMode() {
 function obterChavesMock() {
   const localKeys = localStorage.getItem("cms_mock_keys_v2");
   if (localKeys) {
-    return JSON.parse(localKeys);
+    try {
+      const parsed = JSON.parse(localKeys);
+      let hasOldFormat = false;
+      for (const k in parsed) {
+        if (parsed[k].chave && parsed[k].chave.startsWith("CMS-")) {
+          hasOldFormat = true;
+          break;
+        }
+      }
+      if (!hasOldFormat) {
+        return parsed;
+      }
+    } catch (e) {
+      // JSON inválido, prossegue para reiniciar
+    }
   }
   
   const initialKeys = {};

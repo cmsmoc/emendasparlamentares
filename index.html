@@ -2,6 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <script>
+    // Garante que a URL termine com barra (/) em subpastas, permitindo que os caminhos relativos de CSS e JS resolvam corretamente.
+    (function() {
+      var path = window.location.pathname;
+      if (path && !path.endsWith('/') && !path.split('/').pop().includes('.')) {
+        window.location.replace(path + '/' + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Emendas Parlamentares — CMS Montes Claros</title>
   
@@ -37,7 +46,12 @@
       <form id="login-form">
         <div class="form-group">
           <label for="login-key">Chave de Acesso *</label>
-          <input type="password" id="login-key" placeholder="Sua chave (Ex: JOEL no 1º acesso)" required>
+          <div class="password-wrapper" style="position: relative; display: flex; align-items: center; width: 100%;">
+            <input type="password" id="login-key" placeholder="Sua chave (Ex: JOEL no 1º acesso)" required style="width: 100%; padding-right: 40px;">
+            <button type="button" id="toggle-login-key" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: var(--cms-muted); font-size: 1.1rem; padding: 5px; display: flex; align-items: center; justify-content: center;" title="Mostrar/Ocultar Chave">
+              <i class="fa-solid fa-eye" id="toggle-login-key-icon"></i>
+            </button>
+          </div>
           <span class="error-msg" id="login-error-msg">Chave de acesso incorreta ou inexistente.</span>
         </div>
         <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 20px;">
