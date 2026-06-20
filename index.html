@@ -26,13 +26,93 @@
       <form id="login-form">
         <div class="form-group">
           <label for="login-key">Chave de Acesso *</label>
-          <input type="password" id="login-key" placeholder="Ex: CMS-CONSELHEIRO-01" required>
+          <input type="password" id="login-key" placeholder="Ex: CMS-JOEL-01" required>
           <span class="error-msg" id="login-error-msg">Chave de acesso inválida ou expirada.</span>
         </div>
         <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 15px;">
           <span class="login-btn-text">Entrar no Portal</span>
           <span class="login-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Validando...</span>
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Edição de Emenda -->
+  <div id="edit-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="stripe"></div>
+      <div class="modal-header">
+        <h2>Editar Dados da Emenda</h2>
+        <button type="button" class="close-modal-btn" id="btn-close-edit-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="edit-form">
+        <input type="hidden" id="edit-original-numero">
+        <div class="form-grid" style="padding: 25px; max-height: 70vh; overflow-y: auto;">
+          
+          <!-- Entidade Beneficiária -->
+          <div class="form-group col-span-2">
+            <label for="edit-entidade">Entidade Beneficiária *</label>
+            <select id="edit-entidade" required>
+              <option value="Hospital Universitário Clemente de Faria">Hospital Universitário Clemente de Faria</option>
+              <option value="Hospital Aroldo Tourinho">Hospital Aroldo Tourinho</option>
+              <option value="Hospital Dilson Godinho">Hospital Dilson Godinho</option>
+              <option value="Hospital das Clínicas Doutor Mário Ribeiro da Silveira">Hospital das Clínicas Doutor Mário Ribeiro da Silveira</option>
+              <option value="Hospital Santa Casa de Montes Claros">Hospital Santa Casa de Montes Claros</option>
+              <option value="Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)">Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)</option>
+              <option value="Outra">Outra Entidade</option>
+            </select>
+          </div>
+          
+          <!-- Tipo de Emenda -->
+          <div class="form-group">
+            <label>Tipo de Emenda *</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="edit-tipoEmenda" value="Estadual" id="edit-tipo-estadual">
+                <span>Estadual</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="edit-tipoEmenda" value="Federal" id="edit-tipo-federal">
+                <span>Federal</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Número da Emenda -->
+          <div class="form-group">
+            <label for="edit-numeroEmenda">Número da Emenda *</label>
+            <input type="text" id="edit-numeroEmenda" required pattern="\d+">
+          </div>
+
+          <!-- Parlamentar / Autor da Emenda -->
+          <div class="form-group col-span-2">
+            <label for="edit-parlamentar">Parlamentar / Autor da Emenda *</label>
+            <input type="text" id="edit-parlamentar" required>
+          </div>
+
+          <!-- Resolução / Identificador -->
+          <div class="form-group">
+            <label for="edit-resolucao">Resolução / Portaria / Data</label>
+            <input type="text" id="edit-resolucao">
+          </div>
+
+          <!-- Valor da Emenda -->
+          <div class="form-group">
+            <label for="edit-valor">Valor Repassado (R$) *</label>
+            <input type="number" id="edit-valor" step="0.01" min="0.01" required>
+          </div>
+
+          <!-- Objeto / Finalidade -->
+          <div class="form-group col-span-2">
+            <label for="edit-objeto">Objeto / Finalidade da Emenda</label>
+            <textarea id="edit-objeto" rows="3"></textarea>
+          </div>
+
+        </div>
+        <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-edit">Cancelar</button>
+          <button type="submit" class="submit-btn" id="btn-save-edit" style="padding: 8px 24px;">Salvar Alterações</button>
+        </div>
       </form>
     </div>
   </div>
@@ -145,7 +225,7 @@
             </div>
 
             <!-- Parlamentar / Autor da Emenda -->
-            <div class="form-group">
+            <div class="form-group col-span-2">
               <label for="parlamentar">Parlamentar / Autor da Emenda *</label>
               <input type="text" id="parlamentar" placeholder="Ex: Deputada Leninha, Deputado Gil Pereira" required>
               <span class="error-msg">Por favor, insira o autor/parlamentar da emenda.</span>
@@ -178,7 +258,7 @@
                 <div class="dropzone-content">
                   <i class="fa-solid fa-file-arrow-up dropzone-icon"></i>
                   <p class="dropzone-text-main">Arraste o arquivo PDF aqui ou <span>clique para buscar</span></p>
-                  <p class="dropzone-text-sub">Tamanho máximo aceito: 15MB</p>
+                  <p class="dropzone-text-sub">Tamanho máximo aceito: 30MB</p>
                 </div>
                 <div class="file-preview hidden" id="file-preview">
                   <i class="fa-solid fa-file-pdf file-icon"></i>
@@ -307,7 +387,7 @@
       
       <!-- Citação (Fala V2) como Dica de Fluxo -->
       <div class="fala green">
-        <strong>Gerenciamento Automático:</strong> Os dados exibidos acima são atualizados em tempo real a partir de uma planilha do Google Sheets. Você pode atualizar o status das emendas na planilha para <code>Recebido</code>, <code>Em Análise</code>, <code>Aprovado</code> ou <code>Devolvido para Correção</code> e as cores das linhas e estatísticas serão recalculadas automaticamente.
+        <strong>Gerenciamento Automático:</strong> Os dados exibidos acima são atualizados em tempo real a partir de uma planilha do Google Sheets. O status de cada emenda é atualizado no painel e refletido imediatamente nas estatísticas plenárias.
       </div>
       
       <!-- Riscos (Risco-item V2) -->

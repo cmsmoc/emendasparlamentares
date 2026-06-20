@@ -6,21 +6,79 @@
  */
 const API_URL = "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI";
 
-// Banco de dados de chaves de demonstração
+// Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 2026-2029
 const MOCK_KEYS = {
-  "PREFEITURA-EMENDAS-2026": { usuario: "Setor de Emendas MOC", perfil: "Administrador" },
-  "WEBMASTER-ADMIN-CMS": { usuario: "Webmaster Técnico CMS", perfil: "Webmaster" }
+  "REGULACAO-CMSMOC-2026": { usuario: "SETOR DE REGULAÇÃO DA SECRETARIA MUNICIPAL DE SAÚDE (Regulação CMSMOC)", perfil: "Administrador" },
+  "WEBMASTER-ADMIN-CMS": { usuario: "Webmaster Técnico CMS", perfil: "Webmaster" },
+  
+  // Conselheiros mapeados a partir da planilha oficial
+  "CMS-JOEL-01": { usuario: "Joel Francisco Borges (CLS Jardim Primavera)", perfil: "Conselheiro" },
+  "CMS-AMANDA-02": { usuario: "Amanda Mendes (CLS Independência)", perfil: "Conselheiro" },
+  "CMS-EMANUELA-03": { usuario: "Emanuela Tomaz (CLS Renascença)", perfil: "Conselheiro" },
+  "CMS-SERGIO-04": { usuario: "Sérgio Peres (CLS Planalto)", perfil: "Conselheiro" },
+  "CMS-DANIELLE-05": { usuario: "Danielle Santos Sousa (CLS Vila Atlântica)", perfil: "Conselheiro" },
+  "CMS-LARYSSA-06": { usuario: "Laryssa Félix (CLS Delfino Magalhães)", perfil: "Conselheiro" },
+  "CMS-LUCIANA-07": { usuario: "Luciana de Jesus Santos Cardoso (Assembleia de Deus)", perfil: "Conselheiro" },
+  "CMS-JULIO-08": { usuario: "Julio César Pereira (Assembleia de Deus)", perfil: "Conselheiro" },
+  "CMS-ROBERTA-09": { usuario: "Roberta Cunha Mota Santos (Fundação Sara)", perfil: "Conselheiro" },
+  "CMS-ELIZETE-10": { usuario: "Elizete Santos Barbosa (Fundação Sara)", perfil: "Conselheiro" },
+  "CMS-MARIA-11": { usuario: "Maria dos Reis Ribeiro Dias (Pastoral da Saúde)", perfil: "Conselheiro" },
+  "CMS-CRISTINA-12": { usuario: "Cristina da Silva Queiroz Landgraf (Pastoral da Saúde)", perfil: "Conselheiro" },
+  "CMS-MARILDA-13": { usuario: "Marilda Batista da Silva (Assoc. Consciência Ativa)", perfil: "Conselheiro" },
+  "CMS-FABIANA-14": { usuario: "Fabiana Pereira Mori (Assoc. Consciência Ativa)", perfil: "Conselheiro" },
+  "CMS-FARLEY-15": { usuario: "Farley Sindeaux Ribeiro (ANDA)", perfil: "Conselheiro" },
+  "CMS-JAMILSON-16": { usuario: "Jamilson Moreira Gandra (ANDA)", perfil: "Conselheiro" },
+  "CMS-FERNANDO-17": { usuario: "Fernando Antônio Dias de Andrade (ADEMC)", perfil: "Conselheiro" },
+  "CMS-HELDER-18": { usuario: "Helder Lopes Souza (ADEMC)", perfil: "Conselheiro" },
+  "CMS-NAIARA-19": { usuario: "Naiara Oliveira (Sindicato Rural CUT)", perfil: "Conselheiro" },
+  "CMS-LUIZ-20": { usuario: "Luiz Antônio Mendes (Sindicato Rural CUT)", perfil: "Conselheiro" },
+  "CMS-ANIELE-21": { usuario: "Aniele Costa Silva (Lar Betânia)", perfil: "Conselheiro" },
+  "CMS-JAQUELINE-22": { usuario: "Jaqueline da Conceição Camelo (Lar das Velhinhas)", perfil: "Conselheiro" },
+  "CMS-PAULO-23": { usuario: "Paulo Thiago Carvalho Soares Ribeiro (Arco-Íris do Amor)", perfil: "Conselheiro" },
+  "CMS-JOSE-24": { usuario: "José Cândido de Souza Filho (MGG LGBTQIAPN+)", perfil: "Conselheiro" },
+  "CMS-RAFAEL-25": { usuario: "Rafael Carvalho Maciel (Rotary Clube)", perfil: "Conselheiro" },
+  "CMS-JULIANA-26": { usuario: "Juliana Aparecida de Oliveira (Rotary Clube)", perfil: "Conselheiro" },
+  "CMS-ISABEL-27": { usuario: "Isabel Macedo Avelar (UPM)", perfil: "Conselheiro" },
+  "CMS-MARISA-28": { usuario: "Marisa Cantidio Oliveira (UPM)", perfil: "Conselheiro" },
+  "CMS-CLAUDIA-29": { usuario: "Cláudia Rocha Biscotto (Clínica Rosa Mística)", perfil: "Conselheiro" },
+  "CMS-PATRICIA-30": { usuario: "Patrícia Soares Gomes (Clínica Rosa Mística)", perfil: "Conselheiro" },
+  "CMS-CINDY-31": { usuario: "Cindy Almeyda Reis (Associação Presente)", perfil: "Conselheiro" },
+  "CMS-SANDRA-32": { usuario: "Sandra Simony Mendes Gonçalves (Associação Presente)", perfil: "Conselheiro" },
+  "CMS-SHEILA-33": { usuario: "Sheila Silva Mendes (ABO)", perfil: "Conselheiro" },
+  "CMS-MARIANA-34": { usuario: "Mariana Cristina Meira Cambuí (ABO)", perfil: "Conselheiro" },
+  "CMS-ERNANDES-35": { usuario: "Ernandes Rodrigues Moraes (COREN Nível Médio)", perfil: "Conselheiro" },
+  "CMS-JULIO-36": { usuario: "Júlio César Araújo Lopes (COREN Nível Médio)", perfil: "Conselheiro" },
+  "CMS-FERNANDA-37": { usuario: "Fernanda Fagundes Azevedo Sindeaux (COREN Superior)", perfil: "Conselheiro" },
+  "CMS-RICARDO-38": { usuario: "Ricardo Soares de Oliveira (COREN Superior)", perfil: "Conselheiro" },
+  "CMS-CLAUDIO-39": { usuario: "Cláudio Luiz de Souza Santos (SEEMG)", perfil: "Conselheiro" },
+  "CMS-MONICA-40": { usuario: "Mônica de Fátima Fernandes Ferreira (SEEMG)", perfil: "Conselheiro" },
+  "CMS-WASHINGTON-41": { usuario: "Washington Luiz Carvalho Souto (SIEESS)", perfil: "Conselheiro" },
+  "CMS-JUCELIO-42": { usuario: "Jucélio Bernardes da Silva (SIEESS)", perfil: "Conselheiro" },
+  "CMS-EDNE-43": { usuario: "Edné Silva Soares (SINDE-SAÚDE)", perfil: "Conselheiro" },
+  "CMS-GRACIELE-44": { usuario: "Graciele Gonçalves Ferreira (SINDE-SAÚDE)", perfil: "Conselheiro" },
+  "CMS-EDMILSON-45": { usuario: "Edmilson Alves da Silva (SINDSEP)", perfil: "Conselheiro" },
+  "CMS-EDVALDO-46": { usuario: "Edvaldo de Freitas Francisco (SINDSEP)", perfil: "Conselheiro" },
+  "CMS-ROBERTO-47": { usuario: "Roberto Coelho Ferreira (SINDTRRAUX)", perfil: "Conselheiro" },
+  "CMS-AVILMAR-48": { usuario: "Avilmar Augusto Pereira (SINDTRRAUX)", perfil: "Conselheiro" },
+  "CMS-DALTON-49": { usuario: "Dalton Caldeira (Hosp. Clemente de Faria)", perfil: "Conselheiro" },
+  "CMS-HENRIQUE-50": { usuario: "Henrique Andrade (Hosp. Clemente de Faria)", perfil: "Conselheiro" },
+  "CMS-NUBIA-51": { usuario: "Núbia Carneiro Guimarães (GRAPPA)", perfil: "Conselheiro" },
+  "CMS-KELLY-52": { usuario: "Kelly Mendes Fagundes (Fund. Capelo Gaivota)", perfil: "Conselheiro" },
+  "CMS-NAYRA-53": { usuario: "Nayra Cristine Lacerda Lourens (Santa Casa)", perfil: "Conselheiro" },
+  "CMS-CRISTIANO-54": { usuario: "Cristiano Júnior (Hosp. Mário Ribeiro)", perfil: "Conselheiro" },
+  "CMS-HERICK-55": { usuario: "Hérick Rodrigues Araújo (Hosp. Dilson Godinho)", perfil: "Conselheiro" },
+  "CMS-EMILLY-56": { usuario: "Emilly Eunice Antunes Dias Matos (APAE)", perfil: "Conselheiro" },
+  "CMS-EDUARDO-57": { usuario: "Eduardo Luiz da Silva (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-JOAO-58": { usuario: "João Alves Pereira (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-MARIA-59": { usuario: "Maria Clara Lélis Ramos Cordeira (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-RAIMARA-60": { usuario: "Raimara Gonçalves Pereira (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-MARCIO-61": { usuario: "Márcio Cardoso Silva (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-MARCOS-62": { usuario: "Marcos Dangelis Aguiar (Gestão Pública)", perfil: "Conselheiro" },
+  "CMS-THALLYTA-63": { usuario: "Thallyta de Sousa Lima (GRS Montes Claros)", perfil: "Conselheiro" },
+  "CMS-VALDEMAR-64": { usuario: "Valdemar Rodrigues dos Anjos (GRS)", perfil: "Conselheiro" }
 };
-// Gerar chaves fictícias para os 65 conselheiros de demonstração
-for (let i = 1; i <= 65; i++) {
-  const numStr = i < 10 ? "0" + i : i.toString();
-  MOCK_KEYS[`CMS-CONSELHEIRO-${numStr}`] = {
-    usuario: `Conselheiro Titular ${numStr}`,
-    perfil: "Conselheiro"
-  };
-}
 
-// Banco de dados simulado inicial
+// Banco de dados simulado inicial para demonstração
 const MOCK_DATA = [
   {
     "Data de Envio": "2026-06-15T09:58:00.000Z",
@@ -39,7 +97,7 @@ const MOCK_DATA = [
     "Entidade": "Hospital Santa Casa de Montes Claros",
     "Número da Emenda": "36000808701202600",
     "Tipo": "Federal",
-    "Parlamentar / Autor": "Farley (Emenda 50410001)",
+    "Parlamentar / Autor": "Farley Sindeaux Ribeiro",
     "Resolução/Documento": "Portaria MS nº 36000808701",
     "Valor": 200000.00,
     "Objeto/Finalidade": "INCREMENTO DA MÉDIA E ALTA COMPLEXIDADE (MAC) hospitalar.",
@@ -90,6 +148,19 @@ const removeFileBtn = document.getElementById("remove-file");
 const btnSubmit = document.getElementById("btn-submit");
 const statusAlert = document.getElementById("status-alert");
 
+// Elementos DOM Modal Edição
+const editModal = document.getElementById("edit-modal");
+const editForm = document.getElementById("edit-form");
+const editOriginalNumero = document.getElementById("edit-original-numero");
+const editEntidade = document.getElementById("edit-entidade");
+const editNumeroEmenda = document.getElementById("edit-numeroEmenda");
+const editParlamentar = document.getElementById("edit-parlamentar");
+const editResolucao = document.getElementById("edit-resolucao");
+const editValor = document.getElementById("edit-valor");
+const editObjeto = document.getElementById("edit-objeto");
+const btnCloseEditModal = document.getElementById("btn-close-edit-modal");
+const btnCancelEdit = document.getElementById("btn-cancel-edit");
+
 // Elementos Dashboard
 const tableBody = document.getElementById("table-body");
 const tableLoading = document.getElementById("table-loading");
@@ -109,28 +180,21 @@ const heroTotalCount = document.getElementById("hero-total-count");
 
 // INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Obter IP e Localização do Cliente
   clientInfo = await fetchClientInfo();
-  
-  // 2. Verificar Sessão Existente
   checkSession();
-
-  // 3. Inicializar Componentes de Interface
   initTabs();
   initDragAndDrop();
   initFormValidation();
+  initEditModal();
   
-  // Configurar Login
   loginForm.addEventListener("submit", handleLoginSubmit);
   btnLogout.addEventListener("click", handleLogout);
   
-  // Event listeners para filtros do dashboard
   searchInput.addEventListener("input", filterData);
   filterEntidade.addEventListener("change", filterData);
   filterStatus.addEventListener("change", filterData);
   btnRefresh.addEventListener("click", () => loadDashboardData(true));
   
-  // Configurar alertas com botão de fechar
   document.querySelectorAll(".alert-close").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.currentTarget.parentElement.classList.add("hidden");
@@ -138,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// AVALIAÇÃO DE CONEXÃO E IP
+// CAPTURA DE INFORMAÇÕES DE REDE
 async function fetchClientInfo() {
   const info = { ip: "Desconhecido", loc: "Desconhecido", ua: navigator.userAgent };
   try {
@@ -149,22 +213,21 @@ async function fetchClientInfo() {
       info.loc = `${data.city || "Desconhecido"}, ${data.region || "Desconhecido"}, ${data.country_name || "Desconhecido"}`;
     }
   } catch (e) {
-    console.warn("ipapi.co indisponível, tentando ipify...");
     try {
       const response = await fetch("https://api.ipify.org?format=json");
       if (response.ok) {
         const data = await response.json();
         info.ip = data.ip || "Desconhecido";
-        info.loc = "Desconhecido (Localização Bloqueada)";
+        info.loc = "Desconhecido (Bloqueado)";
       }
     } catch (err) {
-      console.error("Falha ao obter IP do cliente: ", err);
+      console.warn("Sem serviço de IP.");
     }
   }
   return info;
 }
 
-// VERIFICAÇÃO DE AUTENTICAÇÃO
+// SESSÃO DE USUÁRIO
 function checkSession() {
   const session = localStorage.getItem("cms_user_session");
   if (session) {
@@ -177,7 +240,6 @@ function checkSession() {
   }
 }
 
-// APLICAR PERMISSÕES BASEADAS EM PERFIL
 function applyUserPermissions() {
   if (!currentUser) return;
   
@@ -186,36 +248,28 @@ function applyUserPermissions() {
   const uploadTab = document.getElementById("btn-tab-upload");
   
   if (currentUser.perfil === "Conselheiro") {
-    // Esconder aba de cadastro e forçar a aba do Dashboard como ativa
     if (uploadTab) uploadTab.style.display = "none";
-    
-    // Garantir que a aba ativa seja a do dashboard
     tabs.forEach(t => t.classList.remove("active"));
     tabContents.forEach(c => c.classList.remove("active"));
-    
     document.getElementById("btn-tab-dashboard").classList.add("active");
     document.getElementById("tab-dashboard").classList.add("active");
   } else {
-    // Perfis Administrador ou Webmaster
     if (uploadTab) uploadTab.style.display = "flex";
   }
 }
 
-// LOGIN SUBMISSION
+// EVENTO DE LOGIN
 async function handleLoginSubmit(e) {
   e.preventDefault();
-  
   const key = loginKeyInput.value.trim();
   if (!key) return;
   
-  // Set Loading
   btnLogin.disabled = true;
   btnLogin.querySelector(".login-btn-text").classList.add("hidden");
   btnLogin.querySelector(".login-spinner").classList.remove("hidden");
   loginKeyInput.parentElement.classList.remove("invalid");
   
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    // MODO DEMONSTRAÇÃO LOCAL
     setTimeout(() => {
       const match = MOCK_KEYS[key];
       if (match) {
@@ -230,14 +284,13 @@ async function handleLoginSubmit(e) {
         loadDashboardData();
       } else {
         loginKeyInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = "Chave inválida. Use 'CMS-CONSELHEIRO-01' ou 'PREFEITURA-EMENDAS-2026' para testar.";
+        loginErrorMsg.textContent = "Chave inválida. Use chaves do CMS-JOEL-01, REGULACAO-CMSMOC-2026 ou WEBMASTER-ADMIN-CMS.";
       }
       btnLogin.disabled = false;
       btnLogin.querySelector(".login-btn-text").classList.remove("hidden");
       btnLogin.querySelector(".login-spinner").classList.add("hidden");
-    }, 1000);
+    }, 800);
   } else {
-    // VALIDAÇÃO COM O GOOGLE APPS SCRIPT
     try {
       const payload = {
         chave: key,
@@ -246,13 +299,11 @@ async function handleLoginSubmit(e) {
         clientLoc: clientInfo.loc,
         clientUa: clientInfo.ua
       };
-      
       const response = await fetch(API_URL, {
         method: "POST",
         body: JSON.stringify(payload),
         headers: { "Content-Type": "text/plain" }
       });
-      
       const result = await response.json();
       
       if (result.status === "success") {
@@ -267,12 +318,11 @@ async function handleLoginSubmit(e) {
         loadDashboardData();
       } else {
         loginKeyInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = result.message || "Erro na validação da chave.";
+        loginErrorMsg.textContent = result.message || "Chave inválida.";
       }
     } catch (err) {
-      console.error(err);
       loginKeyInput.parentElement.classList.add("invalid");
-      loginErrorMsg.textContent = "Falha ao se conectar com o servidor. Verifique sua URL.";
+      loginErrorMsg.textContent = "Erro de conexão com o servidor Google.";
     } finally {
       btnLogin.disabled = false;
       btnLogin.querySelector(".login-btn-text").classList.remove("hidden");
@@ -281,7 +331,6 @@ async function handleLoginSubmit(e) {
   }
 }
 
-// LOGOUT
 function handleLogout() {
   localStorage.removeItem("cms_user_session");
   currentUser = null;
@@ -291,58 +340,30 @@ function handleLogout() {
   loginOverlay.classList.remove("hidden");
 }
 
-// NAVEGAÇÃO DE ABAS
-function initTabs() {
-  tabs.forEach(tab => {
-    tab.addEventListener("click", (e) => {
-      e.preventDefault();
-      const targetTab = tab.getAttribute("data-tab");
-      
-      tabs.forEach(t => t.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
-      
-      tab.classList.add("active");
-      document.getElementById(targetTab).classList.add("active");
-      
-      if (targetTab === "tab-dashboard") {
-        loadDashboardData();
-      }
-    });
-  });
-}
-
-// DRAG AND DROP
+// UPLOAD DE ARQUIVOS
 function initDragAndDrop() {
   dropzone.addEventListener("click", (e) => {
-    if (e.target !== removeFileBtn && !removeFileBtn.contains(e.target)) {
-      fileInput.click();
-    }
+    if (e.target !== removeFileBtn && !removeFileBtn.contains(e.target)) fileInput.click();
   });
-
   ['dragenter', 'dragover'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
       dropzone.classList.add('dragover');
     }, false);
   });
-
   ['dragleave', 'drop'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
       dropzone.classList.remove('dragover');
     }, false);
   });
-
   dropzone.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
+    const files = e.dataTransfer.files;
     if (files.length) handleFile(files[0]);
   });
-
   fileInput.addEventListener("change", (e) => {
     if (e.target.files.length) handleFile(e.target.files[0]);
   });
-
   removeFileBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     resetFileSelection();
@@ -351,15 +372,14 @@ function initDragAndDrop() {
 
 function handleFile(file) {
   const errorMsg = document.getElementById("pdf-error-msg");
-  
   if (file.type !== "application/pdf") {
     showInputError(fileInput, errorMsg, "Selecione apenas arquivos PDF.");
     resetFileSelection();
     return;
   }
-  
-  if (file.size > 15 * 1024 * 1024) {
-    showInputError(fileInput, errorMsg, "O tamanho do arquivo excede o limite de 15MB.");
+  // Limite aumentado para 30MB
+  if (file.size > 30 * 1024 * 1024) {
+    showInputError(fileInput, errorMsg, "O tamanho do arquivo excede o limite de 30MB.");
     resetFileSelection();
     return;
   }
@@ -389,7 +409,7 @@ function resetFileSelection() {
   filePreview.classList.add("hidden");
 }
 
-// FORM VALIDATION
+// FORM DE CADASTRO
 function initFormValidation() {
   proposalForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -445,15 +465,8 @@ function initFormValidation() {
   });
 }
 
-function showInputError(inputEl, errorEl, msg) {
-  inputEl.parentElement.classList.add("invalid");
-  errorEl.textContent = msg;
-}
-
-// ENVIO DE PROPOSTA
 async function submitProposal() {
   setLoadingState(true);
-  
   const payload = {
     chave: currentUser.chave,
     acao: "cadastro",
@@ -473,10 +486,9 @@ async function submitProposal() {
   };
   
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    // MODO DEMO
     setTimeout(() => {
       const localData = getLocalDb();
-      const newProposal = {
+      localData.push({
         "Data de Envio": new Date().toISOString(),
         "Entidade": payload.entidade,
         "Número da Emenda": payload.numeroEmenda,
@@ -487,19 +499,15 @@ async function submitProposal() {
         "Objeto/Finalidade": payload.objeto,
         "Link do PDF": "https://drive.google.com/drive/my-drive",
         "Status": "Recebido"
-      };
-      
-      localData.push(newProposal);
+      });
       saveLocalDb(localData);
-      
-      showAlert("success", "✅ Sucesso (Modo Demo)", "A proposta foi salva no armazenamento local do navegador! Ação registrada nos logs.");
+      showAlert("success", "✅ Cadastrado (Demo)", "A proposta foi salva localmente.");
       proposalForm.reset();
       resetFileSelection();
       setLoadingState(false);
       loadDashboardData();
-    }, 1200);
+    }, 1000);
   } else {
-    // API GOOGLE
     try {
       const response = await fetch(API_URL, {
         method: "POST",
@@ -507,46 +515,113 @@ async function submitProposal() {
         headers: { "Content-Type": "text/plain" }
       });
       const result = await response.json();
-      
       if (result.status === "success") {
-        showAlert("success", "✅ Proposta Enviada!", "O plano de trabalho foi salvo no Google Drive e registrado na planilha.");
+        showAlert("success", "✅ Proposta Enviada!", "Gravada no Sheets e Drive com sucesso.");
         proposalForm.reset();
         resetFileSelection();
         loadDashboardData();
       } else {
-        showAlert("error", "❌ Erro no Servidor", result.message || "Erro desconhecido.");
+        showAlert("error", "❌ Erro", result.message);
       }
-    } catch (error) {
-      showAlert("error", "❌ Falha de Rede", "Erro de conexão com a API.");
+    } catch (e) {
+      showAlert("error", "❌ Falha de Conexão", "API indisponível.");
     } finally {
       setLoadingState(false);
     }
   }
 }
 
-function setLoadingState(isLoading) {
-  if (isLoading) {
-    btnSubmit.disabled = true;
-    btnSubmit.querySelector(".btn-text").classList.add("hidden");
-    btnSubmit.querySelector(".spinner").classList.remove("hidden");
+// MODAL DE EDIÇÃO
+function initEditModal() {
+  btnCloseEditModal.addEventListener("click", () => editModal.classList.add("hidden"));
+  btnCancelEdit.addEventListener("click", () => editModal.classList.add("hidden"));
+  
+  editForm.addEventListener("submit", handleEditFormSubmit);
+}
+
+function openEditModal(numeroEmenda) {
+  const row = emendasData.find(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
+  if (!row) return;
+  
+  editOriginalNumero.value = numeroEmenda;
+  editEntidade.value = row["Entidade"];
+  editNumeroEmenda.value = row["Número da Emenda"];
+  editParlamentar.value = row["Parlamentar / Autor"] || "";
+  editResolucao.value = row["Resolução/Documento"] || "";
+  editValor.value = row["Valor"] || 0;
+  editObjeto.value = row["Objeto/Finalidade"] || "";
+  
+  if (row["Tipo"] === "Federal") {
+    document.getElementById("edit-tipo-federal").checked = true;
   } else {
-    btnSubmit.disabled = false;
-    btnSubmit.querySelector(".btn-text").classList.remove("hidden");
-    btnSubmit.querySelector(".spinner").classList.add("hidden");
+    document.getElementById("edit-tipo-estadual").checked = true;
+  }
+  
+  editModal.classList.remove("hidden");
+}
+
+async function handleEditFormSubmit(e) {
+  e.preventDefault();
+  
+  const originalNum = editOriginalNumero.value;
+  const payload = {
+    chave: currentUser.chave,
+    acao: "editar_emenda",
+    numeroEmenda: originalNum,
+    novosDados: {
+      entidade: editEntidade.value,
+      tipoEmenda: document.querySelector('input[name="edit-tipoEmenda"]:checked').value,
+      numeroEmenda: editNumeroEmenda.value,
+      parlamentar: editParlamentar.value,
+      resolucao: editResolucao.value || "Não informado",
+      valor: parseFloat(editValor.value) || 0,
+      objeto: editObjeto.value || "Não informado"
+    },
+    clientIp: clientInfo.ip,
+    clientLoc: clientInfo.loc,
+    clientUa: clientInfo.ua
+  };
+  
+  if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+    // MOCK EDIT SUBMISSION
+    const localData = getLocalDb();
+    const row = localData.find(r => r["Número da Emenda"].toString() === originalNum.toString());
+    if (row) {
+      row["Entidade"] = payload.novosDados.entidade;
+      row["Tipo"] = payload.novosDados.tipoEmenda;
+      row["Número da Emenda"] = payload.novosDados.numeroEmenda;
+      row["Parlamentar / Autor"] = payload.novosDados.parlamentar;
+      row["Resolução/Documento"] = payload.novosDados.resolucao;
+      row["Valor"] = payload.novosDados.valor;
+      row["Objeto/Finalidade"] = payload.novosDados.objeto;
+      
+      saveLocalDb(localData);
+      showAlert("success", "✅ Editado (Demo)", "Os dados foram atualizados localmente.");
+      editModal.classList.add("hidden");
+      loadDashboardData();
+    }
+  } else {
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain" }
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        showAlert("success", "✅ Dados Atualizados!", "As alterações foram salvas na planilha.");
+        editModal.classList.add("hidden");
+        loadDashboardData();
+      } else {
+        showAlert("error", "❌ Erro", result.message);
+      }
+    } catch (e) {
+      showAlert("error", "❌ Erro", "Não foi possível conectar ao servidor.");
+    }
   }
 }
 
-// ALERTS
-function showAlert(type, title, desc) {
-  statusAlert.className = `alert alert-${type}`;
-  statusAlert.querySelector(".alert-title").textContent = title;
-  statusAlert.querySelector(".alert-desc").textContent = desc;
-  statusAlert.querySelector(".alert-icon i").className = type === "success" ? "fa-solid fa-circle-check" : "fa-solid fa-circle-exclamation";
-  statusAlert.classList.remove("hidden");
-  setTimeout(() => statusAlert.classList.add("hidden"), 8000);
-}
-
-// DASHBOARD DATA FETCH
+// CARREGAR DADOS DO DASHBOARD
 async function loadDashboardData(forceRefresh = false) {
   if (!currentUser) return;
   tableLoading.classList.remove("hidden");
@@ -556,7 +631,7 @@ async function loadDashboardData(forceRefresh = false) {
       emendasData = getLocalDb();
       renderDashboard();
       tableLoading.classList.add("hidden");
-    }, 450);
+    }, 400);
   } else {
     try {
       const cacheBuster = forceRefresh ? `&t=${new Date().getTime()}` : '';
@@ -567,14 +642,13 @@ async function loadDashboardData(forceRefresh = false) {
         emendasData = result.data;
         renderDashboard();
       } else {
-        showAlert("error", "❌ Erro de Acesso", result.message || "Chave não autorizada.");
+        showAlert("error", "❌ Erro", result.message);
         handleLogout();
       }
     } catch (error) {
-      console.error(error);
       emendasData = getLocalDb();
       renderDashboard();
-      showAlert("error", "❌ Offline", "Exibindo dados armazenados em cache local.");
+      showAlert("error", "❌ Conectado Localmente", "Exibindo base local offline.");
     } finally {
       tableLoading.classList.add("hidden");
     }
@@ -585,7 +659,6 @@ function renderDashboard() {
   filterData();
 }
 
-// FILTRAGEM E RENDERIZAÇÃO DA TABELA
 function filterData() {
   const textSearch = searchInput.value.toLowerCase().trim();
   const entFilter = filterEntidade.value;
@@ -622,7 +695,9 @@ function filterData() {
   
   noDataMsg.classList.add("hidden");
   
-  const isAdmin = currentUser.perfil === "Administrador" || currentUser.perfil === "Webmaster";
+  // Hierarquia de Perfis
+  const isWebmaster = currentUser.perfil === "Webmaster";
+  const isAdmin = currentUser.perfil === "Administrador" || isWebmaster;
   
   filtered.forEach(row => {
     const tr = document.createElement("tr");
@@ -639,9 +714,9 @@ function filterData() {
     const numero = row["Número da Emenda"];
     const status = row["Status"] || "Recebido";
     
-    // Render de Status: Dropdown interativo para Administrador, Badge estática para Conselheiro
+    // REQUISITO: Apenas o Webmaster muda o status. Administrador vê badge estática.
     let statusCellContent = "";
-    if (isAdmin) {
+    if (isWebmaster) {
       statusCellContent = `
         <select class="status-select-inline" data-numero="${numero}">
           <option value="Recebido" ${status === "Recebido" ? "selected" : ""}>Recebido</option>
@@ -658,18 +733,21 @@ function filterData() {
       statusCellContent = `<span class="badge-status ${statusClass}">${status}</span>`;
     }
     
-    // Ações: Botão de Download + Botão de Exclusão (apenas para Admin)
+    // Ações: Download (todos), Editar e Excluir (Administrador e Webmaster)
     const pdfUrl = row["Link do PDF"] || "#";
     let actionCellContent = "";
     
     if (pdfUrl !== "#") {
-      actionCellContent = `<a href="${pdfUrl}" target="_blank" class="action-btn download-trigger" data-numero="${numero}" data-entidade="${row["Entidade"]}"><i class="fa-solid fa-external-link"></i> Ver PDF</a>`;
+      actionCellContent = `<a href="${pdfUrl}" target="_blank" class="action-btn download-trigger" data-numero="${numero}" data-entidade="${row["Entidade"]}"><i class="fa-solid fa-file-pdf"></i> PDF</a>`;
     } else {
       actionCellContent = `<span style="color: var(--cms-muted);">Sem arquivo</span>`;
     }
     
     if (isAdmin) {
       actionCellContent += `
+        <button class="action-btn btn-editar" data-numero="${numero}" title="Editar Dados" style="border-color: #6366f1; color: #6366f1;">
+          <i class="fa-solid fa-pen"></i>
+        </button>
         <button class="delete-btn-inline btn-excluir" data-numero="${numero}" data-entidade="${row["Entidade"]}" title="Excluir Emenda">
           <i class="fa-solid fa-trash-can"></i>
         </button>
@@ -687,27 +765,34 @@ function filterData() {
       <td>${row["Resolução/Documento"] || "Não informado"}</td>
       <td><strong style="color: var(--cms-blue);">${formatCurrency(valor)}</strong></td>
       <td>${statusCellContent}</td>
-      <td style="white-space: nowrap; display: flex; gap: 6px; align-items: center;">${actionCellContent}</td>
+      <td style="white-space: nowrap; display: flex; gap: 4px; align-items: center;">${actionCellContent}</td>
     `;
     
     tableBody.appendChild(tr);
   });
   
-  // Vincular eventos nas ações geradas dinamicamente
   bindTableActions();
 }
 
 function bindTableActions() {
-  // 1. Logs de cliques em PDF (Downloads)
+  // Download logs
   document.querySelectorAll(".download-trigger").forEach(btn => {
-    btn.addEventListener("click", async (e) => {
+    btn.addEventListener("click", (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
       const entidade = e.currentTarget.getAttribute("data-entidade");
       logActionOnServer("log_download", `Baixou o PDF do plano de trabalho da emenda nº ${num} (${entidade}).`);
     });
   });
 
-  // 2. Mudança de Status Inline (Admin apenas)
+  // Edit Trigger (Admin/Webmaster)
+  document.querySelectorAll(".btn-editar").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const num = e.currentTarget.getAttribute("data-numero");
+      openEditModal(num);
+    });
+  });
+
+  // Status Change Inline (Webmaster only)
   document.querySelectorAll(".status-select-inline").forEach(select => {
     select.addEventListener("change", async (e) => {
       const num = e.target.getAttribute("data-numero");
@@ -716,13 +801,12 @@ function bindTableActions() {
     });
   });
 
-  // 3. Exclusão Lógica de Emenda (Admin apenas)
+  // Excluir Trigger (Clean message)
   document.querySelectorAll(".btn-excluir").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
-      const entidade = e.currentTarget.getAttribute("data-entidade");
       
-      const conf = confirm(`⚠️ Atenção:\nVocê tem certeza que deseja excluir logicamente (soft-delete) a emenda nº ${num} do ${entidade}?\nEsta ação será gravada no histórico de logs.`);
+      const conf = confirm(`Tem certeza que deseja excluir esta emenda (Nº ${num})?`);
       if (conf) {
         await deleteEmendaOnServer(num);
       }
@@ -730,12 +814,9 @@ function bindTableActions() {
   });
 }
 
-// ENVIAR LOGS DE AÇÃO PARA O SERVIDOR
+// INTERAÇÕES DE LOGS & UPDATES COM SERVIDOR
 async function logActionOnServer(acao, detalhes) {
-  if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    console.log(`[LOG MOCK] Ação: ${acao} | Detalhes: ${detalhes}`);
-    return;
-  }
+  if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") return;
   try {
     const payload = {
       chave: currentUser.chave,
@@ -751,20 +832,18 @@ async function logActionOnServer(acao, detalhes) {
       headers: { "Content-Type": "text/plain" }
     });
   } catch (err) {
-    console.warn("Falha ao registrar log no servidor:", err);
+    console.warn(err);
   }
 }
 
-// ATUALIZAR STATUS NO SERVIDOR
 async function updateStatusOnServer(numeroEmenda, novoStatus) {
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    // MOCK UPDATE
     const data = getLocalDb();
     const row = data.find(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
     if (row) {
       row["Status"] = novoStatus;
       saveLocalDb(data);
-      showAlert("success", "Status Atualizado (Demo)", `O status da emenda nº ${numeroEmenda} foi alterado para '${novoStatus}'.`);
+      showAlert("success", "Status Atualizado", `Status alterado para '${novoStatus}'.`);
       loadDashboardData();
     }
     return;
@@ -780,35 +859,31 @@ async function updateStatusOnServer(numeroEmenda, novoStatus) {
       clientLoc: clientInfo.loc,
       clientUa: clientInfo.ua
     };
-    
     const response = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: { "Content-Type": "text/plain" }
     });
     const result = await response.json();
-    
     if (result.status === "success") {
-      showAlert("success", "Status Sincronizado", `Status alterado para '${novoStatus}' no Google Sheets.`);
+      showAlert("success", "Status Sincronizado", `Status alterado no Google Sheets.`);
       loadDashboardData();
     } else {
-      showAlert("error", "Erro ao Atualizar", result.message || "Erro no servidor.");
+      showAlert("error", "Erro ao Atualizar", result.message);
     }
   } catch (err) {
-    showAlert("error", "Erro de Rede", "Não foi possível conectar à API.");
+    showAlert("error", "Erro de Rede", "Erro ao enviar novo status.");
   }
 }
 
-// EXCLUSÃO NO SERVIDOR
 async function deleteEmendaOnServer(numeroEmenda) {
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    // MOCK DELETE
     const data = getLocalDb();
     const index = data.findIndex(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
     if (index !== -1) {
-      data.splice(index, 1); // remove fisicamente na demo
+      data.splice(index, 1);
       saveLocalDb(data);
-      showAlert("success", "Registro Excluído (Demo)", `A emenda nº ${numeroEmenda} foi removida localmente.`);
+      showAlert("success", "Emenda Excluída", `A emenda nº ${numeroEmenda} foi removida localmente.`);
       loadDashboardData();
     }
     return;
@@ -823,22 +898,20 @@ async function deleteEmendaOnServer(numeroEmenda) {
       clientLoc: clientInfo.loc,
       clientUa: clientInfo.ua
     };
-    
     const response = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: { "Content-Type": "text/plain" }
     });
     const result = await response.json();
-    
     if (result.status === "success") {
-      showAlert("success", "Emenda Excluída", `O registro nº ${numeroEmenda} foi deletado (soft-delete) da planilha.`);
+      showAlert("success", "Excluído com sucesso", "A emenda foi excluída do painel.");
       loadDashboardData();
     } else {
-      showAlert("error", "Erro ao Excluir", result.message || "Erro no servidor.");
+      showAlert("error", "Erro ao Excluir", result.message);
     }
   } catch (err) {
-    showAlert("error", "Erro de Rede", "Erro ao enviar requisição de exclusão.");
+    showAlert("error", "Erro de Rede", "Falha de rede.");
   }
 }
 
@@ -862,6 +935,18 @@ function calculateStats(dataList) {
 }
 
 // AUXILIARES
+function setLoadingState(isLoading) {
+  if (isLoading) {
+    btnSubmit.disabled = true;
+    btnSubmit.querySelector(".btn-text").classList.add("hidden");
+    btnSubmit.querySelector(".spinner").classList.remove("hidden");
+  } else {
+    btnSubmit.disabled = false;
+    btnSubmit.querySelector(".btn-text").classList.remove("hidden");
+    btnSubmit.querySelector(".spinner").classList.add("hidden");
+  }
+}
+
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -875,7 +960,7 @@ function formatCurrency(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-// LOCALSTORAGE DATABASE
+// BANCO DE DADOS LOCAL
 function getLocalDb() {
   const local = localStorage.getItem("cms_emendas_local");
   if (!local) {
