@@ -533,14 +533,26 @@ async function submitProposal() {
 
 // MODAL DE EDIÇÃO
 function initEditModal() {
-  btnCloseEditModal.addEventListener("click", () => editModal.classList.add("hidden"));
-  btnCancelEdit.addEventListener("click", () => editModal.classList.add("hidden"));
+  btnCloseEditModal.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    editModal.classList.add("hidden");
+  });
+  btnCancelEdit.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    editModal.classList.add("hidden");
+  });
   
   editForm.addEventListener("submit", handleEditFormSubmit);
 }
 
 function openEditModal(numeroEmenda) {
-  const row = emendasData.find(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
+  const row = emendasData.find(r => {
+    const rNum = r && r["Número da Emenda"] ? r["Número da Emenda"].toString().trim() : "";
+    const targetNum = numeroEmenda ? numeroEmenda.toString().trim() : "";
+    return rNum === targetNum;
+  });
   if (!row) return;
   
   editOriginalNumero.value = numeroEmenda;
@@ -570,7 +582,7 @@ async function handleEditFormSubmit(e) {
     numeroEmenda: originalNum,
     novosDados: {
       entidade: editEntidade.value,
-      tipoEmenda: document.querySelector('input[name="edit-tipoEmenda"]:checked').value,
+      tipoEmenda: (document.querySelector('input[name="edit-tipoEmenda"]:checked') || {value: "Estadual"}).value,
       numeroEmenda: editNumeroEmenda.value,
       parlamentar: editParlamentar.value,
       resolucao: editResolucao.value || "Não informado",
@@ -585,7 +597,11 @@ async function handleEditFormSubmit(e) {
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
     // MOCK EDIT SUBMISSION
     const localData = getLocalDb();
-    const row = localData.find(r => r["Número da Emenda"].toString() === originalNum.toString());
+    const row = localData.find(r => {
+      const rNum = r && r["Número da Emenda"] ? r["Número da Emenda"].toString().trim() : "";
+      const targetNum = originalNum ? originalNum.toString().trim() : "";
+      return rNum === targetNum;
+    });
     if (row) {
       row["Entidade"] = payload.novosDados.entidade;
       row["Tipo"] = payload.novosDados.tipoEmenda;
@@ -795,8 +811,8 @@ function bindTableActions() {
   // Status Change Inline (Webmaster only)
   document.querySelectorAll(".status-select-inline").forEach(select => {
     select.addEventListener("change", async (e) => {
-      const num = e.target.getAttribute("data-numero");
-      const novoStatus = e.target.value;
+      const num = e.currentTarget.getAttribute("data-numero");
+      const novoStatus = e.currentTarget.value;
       await updateStatusOnServer(num, novoStatus);
     });
   });
@@ -839,7 +855,11 @@ async function logActionOnServer(acao, detalhes) {
 async function updateStatusOnServer(numeroEmenda, novoStatus) {
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
     const data = getLocalDb();
-    const row = data.find(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
+    const row = data.find(r => {
+      const rNum = r && r["Número da Emenda"] ? r["Número da Emenda"].toString().trim() : "";
+      const targetNum = numeroEmenda ? numeroEmenda.toString().trim() : "";
+      return rNum === targetNum;
+    });
     if (row) {
       row["Status"] = novoStatus;
       saveLocalDb(data);
@@ -879,7 +899,11 @@ async function updateStatusOnServer(numeroEmenda, novoStatus) {
 async function deleteEmendaOnServer(numeroEmenda) {
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
     const data = getLocalDb();
-    const index = data.findIndex(r => r["Número da Emenda"].toString() === numeroEmenda.toString());
+    const index = data.findIndex(r => {
+      const rNum = r && r["Número da Emenda"] ? r["Número da Emenda"].toString().trim() : "";
+      const targetNum = numeroEmenda ? numeroEmenda.toString().trim() : "";
+      return rNum === targetNum;
+    });
     if (index !== -1) {
       data.splice(index, 1);
       saveLocalDb(data);
