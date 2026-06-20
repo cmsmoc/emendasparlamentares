@@ -4,7 +4,7 @@
  * Se mantiver o valor padrão, o aplicativo funcionará no "Modo de Demonstração"
  * utilizando dados salvos localmente no navegador (localStorage).
  */
-const API_URL = "https://script.google.com/macros/library/d/1M54vPbvTDihjnBXGQsBJuezXXHg-9o9jtpSgfuv19OHTQmRvYwfDABpd/4";
+const API_URL = "https://script.google.com/macros/s/AKfycbzelLvubXmBmiDd9z7rynQHejNZiY2XdOoQxrXTPLfOFF4ng7m352iWEOA1rECivqioNw/exec";
 
 // Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 20const MOCK_KEYS = {
   "REGULACAO-CMSMOC-2026": { usuario: "SETOR DE REGULAÇÃO DA SECRETARIA MUNICIPAL DE SAÚDE (Regulação CMSMOC)", perfil: "Administrador" },
