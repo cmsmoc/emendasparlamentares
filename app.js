@@ -6,7 +6,8 @@
  */
 const API_URL = "https://script.google.com/macros/s/AKfycbzelLvubXmBmiDd9z7rynQHejNZiY2XdOoQxrXTPLfOFF4ng7m352iWEOA1rECivqioNw/exec";
 
-// Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 20const MOCK_KEYS = {
+// Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 2026-2029
+const MOCK_KEYS = {
   "REGULACAO-CMSMOC-2026": { usuario: "SETOR DE REGULAÇÃO DA SECRETARIA MUNICIPAL DE SAÚDE (Regulação CMSMOC)", perfil: "Administrador" },
   "WEBMASTER-ADMIN-CMS": { usuario: "Webmaster Técnico CMS", perfil: "Webmaster" },
   
