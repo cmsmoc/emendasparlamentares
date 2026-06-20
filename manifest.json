@@ -1,0 +1,24 @@
+{
+  "name": "Portal de Emendas CMS Montes Claros",
+  "short_name": "Portal Emendas CMS",
+  "description": "Sistema de recebimento e visualização de emendas parlamentares do Conselho Municipal de Saúde de Montes Claros.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0D2E5A",
+  "theme_color": "#0D2E5A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D2E5A" />
+      <stop offset="100%" stop-color="#051833" />
+    </linearGradient>
+    
+    <!-- Accent Gradient (Green & Yellow) -->
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5C400" />
+      <stop offset="50%" stop-color="#1E8A4A" />
+      <stop offset="100%" stop-color="#1B6CB5" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base Circular Background -->
+  <rect width="512" height="512" rx="120" fill="url(#bg-grad)" />
+  
+  <!-- Outer Decorative Ring -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="url(#accent-grad)" stroke-width="12" stroke-dasharray="10 15" opacity="0.3" />
+  
+  <!-- Inner Solid Ring -->
+  <circle cx="256" cy="256" r="185" fill="none" stroke="url(#accent-grad)" stroke-width="4" opacity="0.5" />
+
+  <!-- Stylized Shield/Health/Council Emblem -->
+  <g transform="translate(128, 128)">
+    <!-- Base Shield Icon -->
+    <path d="M128 0 C190 0 230 30 256 60 C256 160 210 210 128 250 C46 210 0 160 0 60 C26 30 66 0 128 0 Z" fill="none" stroke="url(#accent-grad)" stroke-width="14" stroke-linejoin="round" />
+    
+    <!-- Inner Cross (Health/CMS) -->
+    <path d="M128 60 L128 170 M73 115 L183 115" stroke="#F5C400" stroke-width="20" stroke-linecap="round" />
+    
+    <!-- Glowing Core Leaf/Check (Green) -->
+    <path d="M128 170 C140 140 165 130 175 110" fill="none" stroke="#1E8A4A" stroke-width="10" stroke-linecap="round" />
+  </g>
+</svg>

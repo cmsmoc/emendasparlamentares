@@ -1312,3 +1312,93 @@ footer {
     padding: 15px 20px;
   }
 }
+
+/* DÚVIDAS PLENÁRIAS CARD STYLING */
+.doubt-card {
+  background: var(--cms-white);
+  border: 1px solid var(--cms-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.doubt-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.doubt-card-header {
+  background: var(--cms-off);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--cms-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.doubt-author {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cms-navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doubt-author i {
+  color: var(--cms-blue);
+}
+
+.doubt-meta {
+  font-size: 11px;
+  color: var(--cms-muted);
+}
+
+.doubt-question-body {
+  padding: 20px;
+  font-size: 14px;
+  color: var(--cms-ink);
+  line-height: 1.6;
+}
+
+.doubt-answer-body {
+  margin: 0 20px 20px;
+  background: #EFF6FF;
+  border-left: 4px solid var(--cms-blue);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  padding: 16px 20px;
+}
+
+.doubt-answer-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cms-navy);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.doubt-answer-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--cms-ink);
+}
+
+.doubt-actions {
+  padding: 10px 20px;
+  border-top: 1px solid var(--cms-border);
+  background: var(--cms-off);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+

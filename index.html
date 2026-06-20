@@ -5,11 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Emendas Parlamentares — CMS Montes Claros</title>
   
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Sistema institucional para acompanhamento e triagem de emendas parlamentares de Montes Claros - MG.">
+  
+  <!-- PWA Manifest & Themes -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0D2E5A">
+  <link rel="apple-touch-icon" href="icon.png">
+  
   <!-- Fontes Oficiais do Design System -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Estilos Customizados baseados no Design System V2 -->
+  <!-- Estilos Customizados baseados no Design System V2/V3 -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,18 +29,142 @@
       <div class="login-header">
         <div class="login-logo-icon"><i class="fa-solid fa-key"></i></div>
         <h2>Portal de Emendas CMS</h2>
-        <p>Insira sua Chave de Acesso para visualizar ou gerenciar as emendas parlamentares.</p>
+        <p>Insira sua Chave de Acesso e Senha para entrar no painel institucional.</p>
       </div>
       <form id="login-form">
         <div class="form-group">
           <label for="login-key">Chave de Acesso *</label>
-          <input type="password" id="login-key" placeholder="Ex: CMS-JOEL-01" required>
-          <span class="error-msg" id="login-error-msg">Chave de acesso inválida ou expirada.</span>
+          <input type="text" id="login-key" placeholder="Ex: CMS-JOEL-01" required>
         </div>
-        <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 15px;">
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="login-password">Senha de Acesso *</label>
+          <input type="password" id="login-password" placeholder="Sua senha (Primeiro nome em maiúsculo no 1º acesso)" required>
+          <span class="error-msg" id="login-error-msg">Chave ou senha incorretas.</span>
+        </div>
+        <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 20px;">
           <span class="login-btn-text">Entrar no Portal</span>
           <span class="login-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Validando...</span>
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Forçar Alteração de Senha (Primeiro Acesso) -->
+  <div id="force-password-overlay" class="login-overlay hidden">
+    <div class="login-card" style="border: 2px solid var(--cms-yellow);">
+      <div class="stripe" style="background: var(--cms-yellow);"></div>
+      <div class="login-header" style="margin-top: 15px;">
+        <div class="login-logo-icon" style="background: var(--cms-yellow); color: var(--cms-navy);"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2>Primeiro Acesso Detectado</h2>
+        <p>Para sua segurança, você deve alterar a sua senha inicial antes de prosseguir no portal.</p>
+      </div>
+      <form id="force-password-form">
+        <div class="form-group">
+          <label for="force-new-password">Nova Senha *</label>
+          <input type="password" id="force-new-password" placeholder="Mínimo 4 caracteres" required>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="force-confirm-password">Confirmar Nova Senha *</label>
+          <input type="password" id="force-confirm-password" placeholder="Repita a nova senha" required>
+          <span class="error-msg" id="force-password-error-msg">As senhas não coincidem.</span>
+        </div>
+        <button type="submit" class="submit-btn" id="btn-force-submit" style="width: 100%; margin-top: 20px; background: var(--cms-green);">
+          <span class="btn-text">Salvar Nova Senha</span>
+          <span class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Salvando...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Geral de Alteração de Senha (Topbar) -->
+  <div id="change-password-modal" class="modal hidden">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="stripe"></div>
+      <div class="modal-header">
+        <h2>Alterar Senha do Painel</h2>
+        <button type="button" class="close-modal-btn" id="btn-close-pwd-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="general-change-pwd-form">
+        <div style="padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+          <div class="form-group">
+            <label for="general-new-password">Nova Senha *</label>
+            <input type="password" id="general-new-password" placeholder="Mínimo 4 caracteres" required>
+          </div>
+          <div class="form-group">
+            <label for="general-confirm-password">Confirmar Nova Senha *</label>
+            <input type="password" id="general-confirm-password" placeholder="Repita a nova senha" required>
+            <span class="error-msg" id="general-pwd-error-msg">As senhas não coincidem.</span>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-pwd-modal">Cancelar</button>
+          <button type="submit" class="submit-btn" id="btn-save-pwd-modal" style="padding: 8px 24px;">Atualizar Senha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Cadastro de Dúvida -->
+  <div id="new-doubt-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="stripe"></div>
+      <div class="modal-header">
+        <h2>Cadastrar Nova Dúvida Plenária</h2>
+        <button type="button" class="close-modal-btn" id="btn-close-doubt-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="new-doubt-form">
+        <div class="form-grid" style="padding: 25px;">
+          <div class="form-group col-span-2">
+            <label for="doubt-text">Sua dúvida / questionamento *</label>
+            <textarea id="doubt-text" rows="5" placeholder="Digite detalhadamente a sua dúvida para o setor de regulação ou plenária..." required></textarea>
+            <span class="error-msg" id="doubt-error-msg">Este campo é obrigatório.</span>
+            <p style="font-size: 0.75rem; color: var(--cms-muted); margin-top: 5px;">
+              💡 <strong>Nota sobre anonimato:</strong> Sua dúvida será exibida de forma anônima (como "Conselho") para o Setor de Regulação MOC e público geral, mas os outros Conselheiros poderão ver que você fez a solicitação.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-doubt">Cancelar</button>
+          <button type="submit" class="submit-btn" id="btn-save-doubt" style="padding: 8px 24px;">Enviar Dúvida</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Esclarecer / Responder Dúvida -->
+  <div id="answer-doubt-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="stripe"></div>
+      <div class="modal-header">
+        <h2>Responder Dúvida Plenária</h2>
+        <button type="button" class="close-modal-btn" id="btn-close-answer-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="answer-doubt-form">
+        <input type="hidden" id="answer-doubt-id">
+        <div class="form-grid" style="padding: 25px;">
+          <div class="form-group col-span-2">
+            <label>Dúvida Original</label>
+            <blockquote id="answer-doubt-preview" style="background: #F3F4F6; border-left: 4px solid var(--cms-navy); padding: 12px 18px; font-style: italic; font-size: 0.9rem; color: var(--cms-ink); border-radius: 0 6px 6px 0;">
+              Texto da dúvida carregada...
+            </blockquote>
+          </div>
+          <div class="form-group col-span-2">
+            <label for="answer-text">Resposta / Esclarecimento Oficial *</label>
+            <textarea id="answer-text" rows="4" placeholder="Escreva a resposta ou orientação técnica..." required></textarea>
+          </div>
+          <div class="form-group col-span-2">
+            <label for="answer-status">Alterar Status da Dúvida *</label>
+            <select id="answer-status" required>
+              <option value="Esclarecida">Esclarecida (Concluída)</option>
+              <option value="Em Discussão">Em Discussão</option>
+              <option value="Pendente">Pendente</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-answer">Cancelar</button>
+          <button type="submit" class="submit-btn" id="btn-save-answer" style="padding: 8px 24px; background: var(--cms-green);">Salvar Esclarecimento</button>
+        </div>
       </form>
     </div>
   </div>
@@ -48,8 +180,6 @@
       <form id="edit-form">
         <input type="hidden" id="edit-original-numero">
         <div class="form-grid" style="padding: 25px; max-height: 70vh; overflow-y: auto;">
-          
-          <!-- Entidade Beneficiária -->
           <div class="form-group col-span-2">
             <label for="edit-entidade">Entidade Beneficiária *</label>
             <select id="edit-entidade" required>
@@ -62,8 +192,6 @@
               <option value="Outra">Outra Entidade</option>
             </select>
           </div>
-          
-          <!-- Tipo de Emenda -->
           <div class="form-group">
             <label>Tipo de Emenda *</label>
             <div class="radio-group">
@@ -77,37 +205,26 @@
               </label>
             </div>
           </div>
-          
-          <!-- Número da Emenda -->
           <div class="form-group">
             <label for="edit-numeroEmenda">Número da Emenda *</label>
             <input type="text" id="edit-numeroEmenda" required pattern="\d+">
           </div>
-
-          <!-- Parlamentar / Autor da Emenda -->
           <div class="form-group col-span-2">
             <label for="edit-parlamentar">Parlamentar / Autor da Emenda *</label>
             <input type="text" id="edit-parlamentar" required>
           </div>
-
-          <!-- Resolução / Identificador -->
           <div class="form-group">
             <label for="edit-resolucao">Resolução / Portaria / Data</label>
             <input type="text" id="edit-resolucao">
           </div>
-
-          <!-- Valor da Emenda -->
           <div class="form-group">
             <label for="edit-valor">Valor Repassado (R$) *</label>
             <input type="number" id="edit-valor" step="0.01" min="0.01" required>
           </div>
-
-          <!-- Objeto / Finalidade -->
           <div class="form-group col-span-2">
             <label for="edit-objeto">Objeto / Finalidade da Emenda</label>
             <textarea id="edit-objeto" rows="3"></textarea>
           </div>
-
         </div>
         <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-edit">Cancelar</button>
@@ -130,10 +247,14 @@
       <a href="#" class="nav-tab-link active" data-tab="tab-dashboard" id="btn-tab-dashboard">
         <i class="fa-solid fa-chart-line"></i> Painel de Controle
       </a>
+      <a href="#" class="nav-tab-link" data-tab="tab-duvidas" id="btn-tab-duvidas">
+        <i class="fa-solid fa-circle-question"></i> Dúvidas Plenárias
+      </a>
     </div>
     <!-- Área do Usuário Logado -->
     <div class="user-status-area" id="user-status-area">
       <span class="user-info-text"><i class="fa-solid fa-user-shield"></i> <span id="user-display-name">Carregando...</span></span>
+      <button class="logout-btn" id="btn-open-change-password" title="Alterar Senha" style="margin-right: 8px;"><i class="fa-solid fa-lock"></i></button>
       <button class="logout-btn" id="btn-logout" title="Sair do Portal"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </nav>
@@ -185,8 +306,6 @@
         
         <form id="proposal-form" novalidate>
           <div class="form-grid">
-            
-            <!-- Entidade Beneficiária -->
             <div class="form-group col-span-2">
               <label for="entidade">Entidade Beneficiária *</label>
               <select id="entidade" required>
@@ -201,8 +320,6 @@
               </select>
               <span class="error-msg">Por favor, selecione uma entidade.</span>
             </div>
-            
-            <!-- Tipo de Emenda -->
             <div class="form-group">
               <label>Tipo de Emenda *</label>
               <div class="radio-group">
@@ -216,41 +333,29 @@
                 </label>
               </div>
             </div>
-            
-            <!-- Número da Emenda -->
             <div class="form-group">
               <label for="numeroEmenda">Número da Emenda *</label>
               <input type="text" id="numeroEmenda" placeholder="Ex: 197161" required pattern="\d+">
               <span class="error-msg">Insira um número de emenda válido (somente números).</span>
             </div>
-
-            <!-- Parlamentar / Autor da Emenda -->
             <div class="form-group col-span-2">
               <label for="parlamentar">Parlamentar / Autor da Emenda *</label>
               <input type="text" id="parlamentar" placeholder="Ex: Deputada Leninha, Deputado Gil Pereira" required>
               <span class="error-msg">Por favor, insira o autor/parlamentar da emenda.</span>
             </div>
-
-            <!-- Resolução / Identificador -->
             <div class="form-group">
               <label for="resolucao">Resolução / Portaria / Data</label>
               <input type="text" id="resolucao" placeholder="Ex: Resolução SES/MG nº 11.050">
             </div>
-
-            <!-- Valor da Emenda -->
             <div class="form-group">
               <label for="valor">Valor Repassado (R$) *</label>
               <input type="number" id="valor" step="0.01" min="0.01" placeholder="Ex: 150000.00" required>
               <span class="error-msg">Insira um valor numérico válido maior que zero.</span>
             </div>
-
-            <!-- Objeto / Finalidade -->
             <div class="form-group col-span-2">
               <label for="objeto">Objeto / Finalidade da Emenda</label>
               <textarea id="objeto" rows="3" placeholder="Descreva sucintamente o objetivo do plano de trabalho..."></textarea>
             </div>
-
-            <!-- Upload do PDF -->
             <div class="form-group col-span-2">
               <label>Plano de Trabalho (PDF) *</label>
               <div class="upload-dropzone" id="dropzone">
@@ -271,10 +376,7 @@
               </div>
               <span class="error-msg" id="pdf-error-msg">Por favor, anexe o PDF do plano de trabalho.</span>
             </div>
-
           </div>
-
-          <!-- Botão de Submissão -->
           <div class="form-footer">
             <button type="submit" class="submit-btn" id="btn-submit">
               <span class="btn-text">Enviar Proposta</span>
@@ -282,8 +384,6 @@
             </button>
           </div>
         </form>
-
-        <!-- Toast de Status / Feedback -->
         <div id="status-alert" class="alert hidden">
           <div class="alert-icon"><i class="fa-solid"></i></div>
           <div class="alert-content">
@@ -292,14 +392,11 @@
           </div>
           <button class="alert-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
       </div>
     </section>
-
+    
     <!-- ABA 2: PAINEL DE CONTROLE / DASHBOARD -->
     <section id="tab-dashboard" class="tab-content active">
-      
-      <!-- Cards de Estatísticas Oficiais (oport-numbers) -->
       <div class="oport-numbers">
         <div class="oport-card blue">
           <div class="oport-value" id="stat-total-count">0</div>
@@ -325,7 +422,6 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="search-input" placeholder="Buscar por número da emenda, resolução ou parlamentar...">
         </div>
-        
         <div class="filters-group">
           <select id="filter-entidade">
             <option value="">Todas as Entidades</option>
@@ -337,7 +433,6 @@
             <option value="Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)">Inst. Yova Rafha</option>
             <option value="Outra">Outra</option>
           </select>
-          
           <select id="filter-status">
             <option value="">Todos os Status</option>
             <option value="Recebido">Recebido</option>
@@ -345,7 +440,9 @@
             <option value="Aprovado">Aprovado</option>
             <option value="Devolvido para Correção">Devolvido p/ Correção</option>
           </select>
-
+          <button id="btn-sync-database" class="refresh-btn hidden" title="Sincronizar Conselheiros com Banco de Dados Oficial" style="background: #ECFDF5; border-color: #A7F3D0; color: #065F46;">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+          </button>
           <button id="btn-refresh" class="refresh-btn" title="Atualizar dados">
             <i class="fa-solid fa-rotate"></i>
           </button>
@@ -358,7 +455,6 @@
           <i class="fa-solid fa-spinner fa-spin"></i>
           <p>Carregando emendas cadastradas do Google Sheets...</p>
         </div>
-        
         <table class="cms-table" id="emendas-table">
           <thead>
             <tr>
@@ -377,7 +473,6 @@
             <!-- Inserido dinamicamente via JS -->
           </tbody>
         </table>
-        
         <div id="no-data-msg" class="no-data-card hidden">
           <i class="fa-solid fa-folder-open"></i>
           <h3>Nenhuma proposta encontrada</h3>
@@ -385,12 +480,9 @@
         </div>
       </div>
       
-      <!-- Citação (Fala V2) como Dica de Fluxo -->
       <div class="fala green">
         <strong>Gerenciamento Automático:</strong> Os dados exibidos acima são atualizados em tempo real a partir de uma planilha do Google Sheets. O status de cada emenda é atualizado no painel e refletido imediatamente nas estatísticas plenárias.
       </div>
-      
-      <!-- Riscos (Risco-item V2) -->
       <div class="risco-item" style="margin-top: 24px;">
         <span class="risco-badge eliminatorio">Eliminatório</span>
         <div class="risco-content">
@@ -398,7 +490,36 @@
           <p>Emendas parlamentares pendentes de apreciação do Conselho Municipal de Saúde não serão autorizadas para pagamento pelo Fundo Municipal de Saúde.</p>
         </div>
       </div>
-      
+    </section>
+
+    <!-- ABA 3: DÚVIDAS PLENÁRIAS -->
+    <section id="tab-duvidas" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--cms-navy);">Dúvidas Plenárias</h2>
+          <p style="color: var(--cms-muted); font-size: 0.9rem;">Consulte o histórico de questionamentos ou envie novas dúvidas para discussão plenária e esclarecimento oficial.</p>
+        </div>
+        <button class="submit-btn" id="btn-nova-duvida" style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-plus"></i> Cadastrar Dúvida
+        </button>
+      </div>
+
+      <div class="table-wrap" style="min-height: auto;">
+        <div class="loading-overlay" id="duvidas-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Carregando dúvidas do conselho...</p>
+        </div>
+        
+        <div id="duvidas-list" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Inserido dinamicamente via JS -->
+        </div>
+        
+        <div id="no-duvidas-msg" class="no-data-card hidden">
+          <i class="fa-solid fa-comments"></i>
+          <h3>Nenhuma dúvida cadastrada</h3>
+          <p>Seja o primeiro a enviar uma dúvida plenária clicando no botão acima.</p>
+        </div>
+      </div>
     </section>
     
   </main>

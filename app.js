@@ -78,7 +78,7 @@ const MOCK_KEYS = {
   "CMS-VALDEMAR-64": { usuario: "Valdemar Rodrigues dos Anjos (GRS)", perfil: "Conselheiro" }
 };
 
-// Banco de dados simulado inicial para demonstração
+// Banco de dados simulado inicial para demonstração (Emendas)
 const MOCK_DATA = [
   {
     "Data de Envio": "2026-06-15T09:58:00.000Z",
@@ -118,9 +118,39 @@ const MOCK_DATA = [
   }
 ];
 
+// Banco de dados simulado inicial para demonstração (Dúvidas)
+const MOCK_DATA_DUVIDAS = [
+  {
+    "ID": "D-1",
+    "Data": "2026-06-18T14:30:00.000Z",
+    "Chave": "CMS-JOEL-01",
+    "Nome": "Joel Francisco Borges",
+    "Dúvida": "Gostaria de saber qual o prazo limite para a homologação das emendas da Santa Casa de Montes Claros para o plano de trabalho de oncologia.",
+    "Resposta": "O prazo limite regulamentar é de até 15 dias úteis após a submissão formal no portal.",
+    "Status": "Esclarecida",
+    "Responsável": "SETOR DE REGULAÇÃO DA SECRETARIA MUNICIPAL DE SAÚDE (Regulação CMSMOC)",
+    "Data_Resposta": "2026-06-19T10:00:00.000Z",
+    "AutorExibicao": "Joel Francisco Borges"
+  },
+  {
+    "ID": "D-2",
+    "Data": "2026-06-19T16:00:00.000Z",
+    "Chave": "CMS-AMANDA-02",
+    "Nome": "Amanda Mendes Soares",
+    "Dúvida": "O Hospital Clemente de Faria já enviou os documentos complementares da resolução 11.050?",
+    "Resposta": "",
+    "Status": "Pendente",
+    "Responsável": "",
+    "Data_Resposta": "",
+    "AutorExibicao": "Amanda Mendes Soares"
+  }
+];
+
 // Estado global da aplicação
 let emendasData = [];
+let duvidasData = [];
 let currentUser = null; // { chave, usuario, perfil }
+let tempUser = null; // Guardar dados durante forçar senha
 let clientInfo = { ip: "Desconhecido", loc: "Desconhecido", ua: navigator.userAgent };
 let uploadedFileBase64 = "";
 let uploadedFileType = "";
@@ -130,10 +160,29 @@ let uploadedFileName = "";
 const loginOverlay = document.getElementById("login-overlay");
 const loginForm = document.getElementById("login-form");
 const loginKeyInput = document.getElementById("login-key");
+const loginPasswordInput = document.getElementById("login-password");
 const loginErrorMsg = document.getElementById("login-error-msg");
 const btnLogin = document.getElementById("btn-login");
 const userDisplayName = document.getElementById("user-display-name");
 const btnLogout = document.getElementById("btn-logout");
+
+// Elementos DOM Primeiro Acesso
+const forcePasswordOverlay = document.getElementById("force-password-overlay");
+const forcePasswordForm = document.getElementById("force-password-form");
+const forceNewPasswordInput = document.getElementById("force-new-password");
+const forceConfirmPasswordInput = document.getElementById("force-confirm-password");
+const forcePasswordErrorMsg = document.getElementById("force-password-error-msg");
+const btnForceSubmit = document.getElementById("btn-force-submit");
+
+// Elementos DOM Modal Alterar Senha Geral
+const changePasswordModal = document.getElementById("change-password-modal");
+const generalChangePwdForm = document.getElementById("general-change-pwd-form");
+const generalNewPasswordInput = document.getElementById("general-new-password");
+const generalConfirmPasswordInput = document.getElementById("general-confirm-password");
+const generalPwdErrorMsg = document.getElementById("general-pwd-error-msg");
+const btnOpenChangePassword = document.getElementById("btn-open-change-password");
+const btnCancelPwdModal = document.getElementById("btn-cancel-pwd-modal");
+const btnClosePwdModal = document.getElementById("btn-close-pwd-modal");
 
 // Elementos DOM Navegação & Geral
 const tabs = document.querySelectorAll(".nav-tab-link");
@@ -169,6 +218,7 @@ const searchInput = document.getElementById("search-input");
 const filterEntidade = document.getElementById("filter-entidade");
 const filterStatus = document.getElementById("filter-status");
 const btnRefresh = document.getElementById("btn-refresh");
+const btnSyncDatabase = document.getElementById("btn-sync-database");
 
 // Elementos Estatísticas Dashboard & Hero
 const statTotalCount = document.getElementById("stat-total-count");
@@ -178,6 +228,27 @@ const statApprovedCount = document.getElementById("stat-approved-count");
 const heroTotalValue = document.getElementById("hero-total-value");
 const heroTotalCount = document.getElementById("hero-total-count");
 
+// Elementos Dúvidas Plenárias
+const duvidasList = document.getElementById("duvidas-list");
+const duvidasLoading = document.getElementById("duvidas-loading");
+const noDuvidasMsg = document.getElementById("no-duvidas-msg");
+const btnNovaDuvida = document.getElementById("btn-nova-duvida");
+
+const newDoubtModal = document.getElementById("new-doubt-modal");
+const newDoubtForm = document.getElementById("new-doubt-form");
+const doubtTextInput = document.getElementById("doubt-text");
+const btnCancelDoubt = document.getElementById("btn-cancel-doubt");
+const btnCloseDoubtModal = document.getElementById("btn-close-doubt-modal");
+
+const answerDoubtModal = document.getElementById("answer-doubt-modal");
+const answerDoubtForm = document.getElementById("answer-doubt-form");
+const answerDoubtIdInput = document.getElementById("answer-doubt-id");
+const answerDoubtPreview = document.getElementById("answer-doubt-preview");
+const answerTextInput = document.getElementById("answer-text");
+const answerStatusSelect = document.getElementById("answer-status");
+const btnCancelAnswer = document.getElementById("btn-cancel-answer");
+const btnCloseAnswerModal = document.getElementById("btn-close-answer-modal");
+
 // INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", async () => {
   clientInfo = await fetchClientInfo();
@@ -186,6 +257,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   initDragAndDrop();
   initFormValidation();
   initEditModal();
+  initPasswordModals();
+  initDoubtModals();
   
   loginForm.addEventListener("submit", handleLoginSubmit);
   btnLogout.addEventListener("click", handleLogout);
@@ -195,11 +268,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   filterStatus.addEventListener("change", filterData);
   btnRefresh.addEventListener("click", () => loadDashboardData(true));
   
+  if (btnSyncDatabase) {
+    btnSyncDatabase.addEventListener("click", triggerDatabaseSync);
+  }
+  
   document.querySelectorAll(".alert-close").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.currentTarget.parentElement.classList.add("hidden");
     });
   });
+  
+  // PWA offline support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("Service Worker ativo."))
+      .catch(err => console.warn("Service Worker falhou:", err));
+  }
 });
 
 // CAPTURA DE INFORMAÇÕES DE REDE
@@ -247,6 +331,7 @@ function applyUserPermissions() {
   
   const uploadTab = document.getElementById("btn-tab-upload");
   
+  // Conselheiros não cadastram propostas (apenas visualizam)
   if (currentUser.perfil === "Conselheiro") {
     if (uploadTab) uploadTab.style.display = "none";
     tabs.forEach(t => t.classList.remove("active"));
@@ -256,35 +341,88 @@ function applyUserPermissions() {
   } else {
     if (uploadTab) uploadTab.style.display = "flex";
   }
+  
+  // Botão Sincronizar planilha oficial (Apenas Webmaster)
+  if (btnSyncDatabase) {
+    if (currentUser.perfil === "Webmaster") {
+      btnSyncDatabase.classList.remove("hidden");
+    } else {
+      btnSyncDatabase.classList.add("hidden");
+    }
+  }
+  
+  // Botão Nova Dúvida (Conselheiros e Webmasters)
+  if (btnNovaDuvida) {
+    if (currentUser.perfil === "Administrador") {
+      btnNovaDuvida.classList.add("hidden"); // Regulação apenas responde
+    } else {
+      btnNovaDuvida.classList.remove("hidden");
+    }
+  }
+}
+
+// NAVEGAÇÃO DE ABAS
+function initTabs() {
+  tabs.forEach(tab => {
+    tab.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetTab = tab.getAttribute("data-tab");
+      
+      tabs.forEach(t => t.classList.remove("active"));
+      tabContents.forEach(c => c.classList.remove("active"));
+      
+      tab.classList.add("active");
+      const targetEl = document.getElementById(targetTab);
+      if (targetEl) targetEl.classList.add("active");
+      
+      if (targetTab === "tab-duvidas") {
+        renderDoubtBoard();
+      }
+    });
+  });
 }
 
 // EVENTO DE LOGIN
 async function handleLoginSubmit(e) {
   e.preventDefault();
   const key = loginKeyInput.value.trim();
-  if (!key) return;
+  const pwd = loginPasswordInput.value.trim();
+  if (!key || !pwd) return;
   
   btnLogin.disabled = true;
   btnLogin.querySelector(".login-btn-text").classList.add("hidden");
   btnLogin.querySelector(".login-spinner").classList.remove("hidden");
   loginKeyInput.parentElement.classList.remove("invalid");
+  loginPasswordInput.parentElement.classList.remove("invalid");
   
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+    // MOCK LOGIN STATEFUL
     setTimeout(() => {
       const match = MOCK_KEYS[key];
       if (match) {
-        currentUser = {
-          chave: key,
-          usuario: match.usuario,
-          perfil: match.perfil
-        };
-        localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-        applyUserPermissions();
-        loginOverlay.classList.add("hidden");
-        loadDashboardData();
+        const correctPwd = obterSenhaAtualMock(key);
+        if (pwd === correctPwd) {
+          tempUser = { chave: key, usuario: match.usuario, perfil: match.perfil };
+          
+          const primeiroAcesso = obterPrimeiroAcessoMock(key);
+          if (primeiroAcesso) {
+            // Abre o modal de alteração obrigatória
+            forcePasswordOverlay.classList.remove("hidden");
+          } else {
+            currentUser = tempUser;
+            localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+            applyUserPermissions();
+            loginOverlay.classList.add("hidden");
+            loadDashboardData();
+            loginForm.reset();
+          }
+        } else {
+          loginPasswordInput.parentElement.classList.add("invalid");
+          loginErrorMsg.textContent = "Senha incorreta para esta chave.";
+        }
       } else {
         loginKeyInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = "Chave inválida. Use chaves do CMS-JOEL-01, REGULACAO-CMSMOC-2026 ou WEBMASTER-ADMIN-CMS.";
+        loginErrorMsg.textContent = "Chave de acesso inválida.";
       }
       btnLogin.disabled = false;
       btnLogin.querySelector(".login-btn-text").classList.remove("hidden");
@@ -294,6 +432,7 @@ async function handleLoginSubmit(e) {
     try {
       const payload = {
         chave: key,
+        senha: pwd,
         acao: "auth",
         clientIp: clientInfo.ip,
         clientLoc: clientInfo.loc,
@@ -307,18 +446,25 @@ async function handleLoginSubmit(e) {
       const result = await response.json();
       
       if (result.status === "success") {
-        currentUser = {
+        tempUser = {
           chave: key,
           usuario: result.profile.usuario,
           perfil: result.profile.perfil
         };
-        localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-        applyUserPermissions();
-        loginOverlay.classList.add("hidden");
-        loadDashboardData();
+        
+        if (result.profile.primeiroAcesso) {
+          forcePasswordOverlay.classList.remove("hidden");
+        } else {
+          currentUser = tempUser;
+          localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+          applyUserPermissions();
+          loginOverlay.classList.add("hidden");
+          loadDashboardData();
+          loginForm.reset();
+        }
       } else {
-        loginKeyInput.parentElement.classList.add("invalid");
-        loginErrorMsg.textContent = result.message || "Chave inválida.";
+        loginPasswordInput.parentElement.classList.add("invalid");
+        loginErrorMsg.textContent = result.message || "Erro nas credenciais.";
       }
     } catch (err) {
       loginKeyInput.parentElement.classList.add("invalid");
@@ -338,6 +484,185 @@ function handleLogout() {
   proposalForm.reset();
   loginForm.reset();
   loginOverlay.classList.remove("hidden");
+}
+
+// ── FLUXO DE ALTERAÇÃO DE SENHA ──
+
+function initPasswordModals() {
+  // Modal de primeiro acesso obrigatório
+  forcePasswordForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newPwd = forceNewPasswordInput.value.trim();
+    const confPwd = forceConfirmPasswordInput.value.trim();
+    
+    if (newPwd.length < 4) {
+      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "A senha deve ter pelo menos 4 caracteres.");
+      return;
+    }
+    
+    if (newPwd !== confPwd) {
+      showInputError(forceConfirmPasswordInput, forcePasswordErrorMsg, "As senhas não conferem.");
+      return;
+    }
+    
+    btnForceSubmit.disabled = true;
+    btnForceSubmit.querySelector(".btn-text").classList.add("hidden");
+    btnForceSubmit.querySelector(".spinner").classList.remove("hidden");
+    
+    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+      setTimeout(() => {
+        salvarSenhaMock(tempUser.chave, newPwd);
+        currentUser = tempUser;
+        localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+        applyUserPermissions();
+        forcePasswordOverlay.classList.add("hidden");
+        loginOverlay.classList.add("hidden");
+        loadDashboardData();
+        forcePasswordForm.reset();
+        btnForceSubmit.disabled = false;
+        btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
+        btnForceSubmit.querySelector(".spinner").classList.add("hidden");
+        showAlert("success", "Senha Atualizada", "Sua nova senha de acesso foi salva!");
+      }, 800);
+    } else {
+      try {
+        const payload = {
+          chave: tempUser.chave,
+          acao: "alterar_senha",
+          novaSenha: newPwd,
+          clientIp: clientInfo.ip,
+          clientLoc: clientInfo.loc,
+          clientUa: clientInfo.ua
+        };
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "text/plain" }
+        });
+        const result = await response.json();
+        
+        if (result.status === "success") {
+          currentUser = tempUser;
+          localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
+          applyUserPermissions();
+          forcePasswordOverlay.classList.add("hidden");
+          loginOverlay.classList.add("hidden");
+          loadDashboardData();
+          forcePasswordForm.reset();
+          showAlert("success", "Senha Atualizada", "Sua senha foi reconfigurada com sucesso.");
+        } else {
+          showAlert("error", "Erro ao alterar", result.message);
+        }
+      } catch (err) {
+        showAlert("error", "Erro de Conexão", "Não foi possível enviar a nova senha.");
+      } finally {
+        btnForceSubmit.disabled = false;
+        btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
+        btnForceSubmit.querySelector(".spinner").classList.add("hidden");
+      }
+    }
+  });
+
+  // Modal Geral de Alterar Senha (Topbar)
+  btnOpenChangePassword.addEventListener("click", () => {
+    generalChangePwdForm.reset();
+    generalPwdErrorMsg.parentElement.classList.remove("invalid");
+    changePasswordModal.classList.remove("hidden");
+  });
+  
+  btnCancelPwdModal.addEventListener("click", () => changePasswordModal.classList.add("hidden"));
+  btnClosePwdModal.addEventListener("click", () => changePasswordModal.classList.add("hidden"));
+  
+  generalChangePwdForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newPwd = generalNewPasswordInput.value.trim();
+    const confPwd = generalConfirmPasswordInput.value.trim();
+    
+    if (newPwd.length < 4) {
+      showInputError(generalNewPasswordInput, generalPwdErrorMsg, "Mínimo 4 caracteres.");
+      return;
+    }
+    
+    if (newPwd !== confPwd) {
+      showInputError(generalConfirmPasswordInput, generalPwdErrorMsg, "As senhas não conferem.");
+      return;
+    }
+    
+    const btnSave = document.getElementById("btn-save-pwd-modal");
+    btnSave.disabled = true;
+    
+    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+      salvarSenhaMock(currentUser.chave, newPwd);
+      showAlert("success", "Senha Alterada", "Senha local alterada com sucesso.");
+      changePasswordModal.classList.add("hidden");
+      btnSave.disabled = false;
+    } else {
+      try {
+        const payload = {
+          chave: currentUser.chave,
+          acao: "alterar_senha",
+          novaSenha: newPwd,
+          clientIp: clientInfo.ip,
+          clientLoc: clientInfo.loc,
+          clientUa: clientInfo.ua
+        };
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "text/plain" }
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          showAlert("success", "Senha Alterada", "Sua senha foi alterada no Google Sheets!");
+          changePasswordModal.classList.add("hidden");
+        } else {
+          showAlert("error", "Erro ao salvar", result.message);
+        }
+      } catch (err) {
+        showAlert("error", "Falha de Rede", "Erro ao conectar com a planilha.");
+      } finally {
+        btnSave.disabled = false;
+      }
+    }
+  });
+}
+
+// ── ASSISTENTE DO MOCK PASSWORD STATEFUL ──
+function obterSenhaPadraoMock(key) {
+  if (key === "WEBMASTER-ADMIN-CMS") return "WEBMASTER";
+  if (key === "REGULACAO-CMSMOC-2026") return "REGULACAO";
+  if (key.startsWith("CMS-")) {
+    return key.split("-")[1]; // Ex: CMS-JOEL-01 -> JOEL
+  }
+  return "1234";
+}
+
+function obterSenhaAtualMock(key) {
+  const localPasswords = localStorage.getItem("cms_mock_passwords");
+  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
+  if (passwordsMap[key]) {
+    return passwordsMap[key].senha;
+  }
+  return obterSenhaPadraoMock(key);
+}
+
+function obterPrimeiroAcessoMock(key) {
+  const localPasswords = localStorage.getItem("cms_mock_passwords");
+  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
+  if (passwordsMap[key]) {
+    return passwordsMap[key].primeiroAcesso;
+  }
+  return true;
+}
+
+function salvarSenhaMock(key, novaSenha) {
+  const localPasswords = localStorage.getItem("cms_mock_passwords");
+  let passwordsMap = localPasswords ? JSON.parse(localPasswords) : {};
+  passwordsMap[key] = {
+    senha: novaSenha,
+    primeiroAcesso: false
+  };
+  localStorage.setItem("cms_mock_passwords", JSON.stringify(passwordsMap));
 }
 
 // UPLOAD DE ARQUIVOS
@@ -377,7 +702,6 @@ function handleFile(file) {
     resetFileSelection();
     return;
   }
-  // Limite aumentado para 30MB
   if (file.size > 30 * 1024 * 1024) {
     showInputError(fileInput, errorMsg, "O tamanho do arquivo excede o limite de 30MB.");
     resetFileSelection();
@@ -595,7 +919,6 @@ async function handleEditFormSubmit(e) {
   };
   
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-    // MOCK EDIT SUBMISSION
     const localData = getLocalDb();
     const row = localData.find(r => {
       const rNum = r && r["Número da Emenda"] ? r["Número da Emenda"].toString().trim() : "";
@@ -641,12 +964,16 @@ async function handleEditFormSubmit(e) {
 async function loadDashboardData(forceRefresh = false) {
   if (!currentUser) return;
   tableLoading.classList.remove("hidden");
+  if (duvidasLoading) duvidasLoading.classList.remove("hidden");
   
   if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
     setTimeout(() => {
       emendasData = getLocalDb();
+      duvidasData = getLocalDuvidas();
       renderDashboard();
+      renderDoubtBoard();
       tableLoading.classList.add("hidden");
+      if (duvidasLoading) duvidasLoading.classList.add("hidden");
     }, 400);
   } else {
     try {
@@ -656,17 +983,22 @@ async function loadDashboardData(forceRefresh = false) {
       
       if (result.status === "success") {
         emendasData = result.data;
+        duvidasData = result.duvidas || [];
         renderDashboard();
+        renderDoubtBoard();
       } else {
         showAlert("error", "❌ Erro", result.message);
         handleLogout();
       }
     } catch (error) {
       emendasData = getLocalDb();
+      duvidasData = getLocalDuvidas();
       renderDashboard();
+      renderDoubtBoard();
       showAlert("error", "❌ Conectado Localmente", "Exibindo base local offline.");
     } finally {
       tableLoading.classList.add("hidden");
+      if (duvidasLoading) duvidasLoading.classList.add("hidden");
     }
   }
 }
@@ -711,7 +1043,6 @@ function filterData() {
   
   noDataMsg.classList.add("hidden");
   
-  // Hierarquia de Perfis
   const isWebmaster = currentUser.perfil === "Webmaster";
   const isAdmin = currentUser.perfil === "Administrador" || isWebmaster;
   
@@ -730,7 +1061,6 @@ function filterData() {
     const numero = row["Número da Emenda"];
     const status = row["Status"] || "Recebido";
     
-    // REQUISITO: Apenas o Webmaster muda o status. Administrador vê badge estática.
     let statusCellContent = "";
     if (isWebmaster) {
       statusCellContent = `
@@ -749,7 +1079,6 @@ function filterData() {
       statusCellContent = `<span class="badge-status ${statusClass}">${status}</span>`;
     }
     
-    // Ações: Download (todos), Editar e Excluir (Administrador e Webmaster)
     const pdfUrl = row["Link do PDF"] || "#";
     let actionCellContent = "";
     
@@ -791,7 +1120,6 @@ function filterData() {
 }
 
 function bindTableActions() {
-  // Download logs
   document.querySelectorAll(".download-trigger").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
@@ -800,7 +1128,6 @@ function bindTableActions() {
     });
   });
 
-  // Edit Trigger (Admin/Webmaster)
   document.querySelectorAll(".btn-editar").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
@@ -808,7 +1135,6 @@ function bindTableActions() {
     });
   });
 
-  // Status Change Inline (Webmaster only)
   document.querySelectorAll(".status-select-inline").forEach(select => {
     select.addEventListener("change", async (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
@@ -817,17 +1143,312 @@ function bindTableActions() {
     });
   });
 
-  // Excluir Trigger (Clean message)
   document.querySelectorAll(".btn-excluir").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       const num = e.currentTarget.getAttribute("data-numero");
-      
-      const conf = confirm(`Tem certeza que deseja excluir esta emenda (Nº ${num})?`);
+      const conf = confirm(`Tem certeza que deseja excluir a emenda nº ${num}?`);
       if (conf) {
         await deleteEmendaOnServer(num);
       }
     });
   });
+}
+
+// ── LOGICA DO QUADRO DE DÚVIDAS (FRONTEND) ──
+
+function initDoubtModals() {
+  // Modal de cadastro
+  btnNovaDuvida.addEventListener("click", () => {
+    newDoubtForm.reset();
+    doubtTextInput.parentElement.classList.remove("invalid");
+    newDoubtModal.classList.remove("hidden");
+  });
+  
+  btnCancelDoubt.addEventListener("click", () => newDoubtModal.classList.add("hidden"));
+  btnCloseDoubtModal.addEventListener("click", () => newDoubtModal.classList.add("hidden"));
+  
+  newDoubtForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const texto = doubtTextInput.value.trim();
+    if (!texto) {
+      doubtTextInput.parentElement.classList.add("invalid");
+      return;
+    }
+    
+    const btnSave = document.getElementById("btn-save-doubt");
+    btnSave.disabled = true;
+    
+    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+      setTimeout(() => {
+        const list = getLocalDuvidas();
+        list.push({
+          "ID": "D-" + new Date().getTime(),
+          "Data": new Date().toISOString(),
+          "Chave": currentUser.chave,
+          "Nome": currentUser.usuario,
+          "Dúvida": texto,
+          "Resposta": "",
+          "Status": "Pendente",
+          "Responsável": "",
+          "Data_Resposta": "",
+          "AutorExibicao": currentUser.usuario
+        });
+        saveLocalDuvidas(list);
+        showAlert("success", "✅ Dúvida Enviada (Demo)", "Salva localmente.");
+        newDoubtModal.classList.add("hidden");
+        loadDashboardData();
+        btnSave.disabled = false;
+      }, 500);
+    } else {
+      try {
+        const payload = {
+          chave: currentUser.chave,
+          acao: "cadastrar_duvida",
+          duvida: texto,
+          clientIp: clientInfo.ip,
+          clientLoc: clientInfo.loc,
+          clientUa: clientInfo.ua
+        };
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "text/plain" }
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          showAlert("success", "✅ Dúvida Cadastrada!", "Todos os conselheiros foram notificados por email.");
+          newDoubtModal.classList.add("hidden");
+          loadDashboardData();
+        } else {
+          showAlert("error", "Erro", result.message);
+        }
+      } catch (err) {
+        showAlert("error", "Falha de Rede", "Não foi possível enviar sua dúvida.");
+      } finally {
+        btnSave.disabled = false;
+      }
+    }
+  });
+
+  // Modal de Resposta
+  btnCancelAnswer.addEventListener("click", () => answerDoubtModal.classList.add("hidden"));
+  btnCloseAnswerModal.addEventListener("click", () => answerDoubtModal.classList.add("hidden"));
+  
+  answerDoubtForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = answerDoubtIdInput.value;
+    const resp = answerTextInput.value.trim();
+    const status = answerStatusSelect.value;
+    
+    if (!resp) return;
+    
+    const btnSave = document.getElementById("btn-save-answer");
+    btnSave.disabled = true;
+    
+    if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+      setTimeout(() => {
+        const list = getLocalDuvidas();
+        const row = list.find(d => d.ID === id);
+        if (row) {
+          row.Resposta = resp;
+          row.Status = status;
+          row.Responsável = currentUser.usuario;
+          row.Data_Resposta = new Date().toISOString();
+        }
+        saveLocalDuvidas(list);
+        showAlert("success", "✅ Respondido (Demo)", "Resposta salva localmente.");
+        answerDoubtModal.classList.add("hidden");
+        loadDashboardData();
+        btnSave.disabled = false;
+      }, 500);
+    } else {
+      try {
+        const payload = {
+          chave: currentUser.chave,
+          acao: "responder_duvida",
+          idDuvida: id,
+          resposta: resp,
+          novoStatus: status,
+          clientIp: clientInfo.ip,
+          clientLoc: clientInfo.loc,
+          clientUa: clientInfo.ua
+        };
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "text/plain" }
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          showAlert("success", "✅ Resposta Enviada!", "Os conselheiros foram notificados por email.");
+          answerDoubtModal.classList.add("hidden");
+          loadDashboardData();
+        } else {
+          showAlert("error", "Erro", result.message);
+        }
+      } catch (err) {
+        showAlert("error", "Erro de Rede", "Erro ao salvar esclarecimento.");
+      } finally {
+        btnSave.disabled = false;
+      }
+    }
+  });
+}
+
+function renderDoubtBoard() {
+  if (!duvidasList) return;
+  duvidasList.innerHTML = "";
+  
+  if (duvidasData.length === 0) {
+    noDuvidasMsg.classList.remove("hidden");
+    if (duvidasLoading) duvidasLoading.classList.add("hidden");
+    return;
+  }
+  
+  noDuvidasMsg.classList.add("hidden");
+  if (duvidasLoading) duvidasLoading.classList.add("hidden");
+  
+  const isWebmaster = currentUser.perfil === "Webmaster";
+  const isAdmin = currentUser.perfil === "Administrador" || isWebmaster;
+  
+  // Ordenação: Pendentes no topo, depois ordenadas por data descrescente
+  const sorted = [...duvidasData].sort((a, b) => {
+    if (a.Status === "Pendente" && b.Status !== "Pendente") return -1;
+    if (a.Status !== "Pendente" && b.Status === "Pendente") return 1;
+    return new Date(b.Data) - new Date(a.Data);
+  });
+  
+  sorted.forEach(row => {
+    const card = document.createElement("div");
+    card.className = "doubt-card";
+    
+    const dDate = new Date(row.Data);
+    const formattedDate = !isNaN(dDate.getTime()) ? 
+      dDate.toLocaleDateString("pt-BR") + " " + dDate.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : "";
+      
+    // Cópia local de censura de autor se for Administrador em modo Demo
+    let autor = row.AutorExibicao || "Conselho";
+    if (currentUser.perfil === "Administrador" && API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+      autor = "Conselho";
+    }
+    
+    // Status color
+    let statusClass = "status-todo";
+    if (row.Status === "Em Discussão") statusClass = "status-warn";
+    else if (row.Status === "Esclarecida") statusClass = "status-ok";
+    
+    let answerHtml = "";
+    if (row.Resposta) {
+      const aDate = new Date(row.Data_Resposta);
+      const formattedDateResp = !isNaN(aDate.getTime()) ? 
+        aDate.toLocaleDateString("pt-BR") + " " + aDate.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : "";
+      
+      answerHtml = `
+        <div class="doubt-answer-body">
+          <div class="doubt-answer-header">
+            <span>Esclarecimento Técnico</span>
+            <span>${row.Responsável} — ${formattedDateResp}</span>
+          </div>
+          <div class="doubt-answer-text">${row.Resposta}</div>
+        </div>
+      `;
+    }
+    
+    let actionBtnHtml = "";
+    // Apenas Administrador/Webmaster respondem
+    if (isAdmin) {
+      actionBtnHtml = `
+        <div class="doubt-actions">
+          <button class="action-btn btn-responder-duvida" data-id="${row.ID}" style="background: var(--cms-navy); color: white; border: none;">
+            <i class="fa-solid fa-reply"></i> Responder
+          </button>
+        </div>
+      `;
+    }
+    
+    card.innerHTML = `
+      <div class="doubt-card-header">
+        <div class="doubt-author"><i class="fa-solid fa-circle-user"></i> ${autor}</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge-status ${statusClass}">${row.Status}</span>
+          <span class="doubt-meta">${formattedDate}</span>
+        </div>
+      </div>
+      <div class="doubt-question-body">${row.Dúvida}</div>
+      ${answerHtml}
+      ${actionBtnHtml}
+    `;
+    
+    duvidasList.appendChild(card);
+  });
+  
+  // Bind nos botões de resposta
+  document.querySelectorAll(".btn-responder-duvida").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const id = e.currentTarget.getAttribute("data-id");
+      openAnswerDoubtModal(id);
+    });
+  });
+}
+
+function openAnswerDoubtModal(id) {
+  const row = duvidasData.find(d => d.ID === id);
+  if (!row) return;
+  
+  answerDoubtIdInput.value = id;
+  answerDoubtPreview.textContent = `"${row.Dúvida}"`;
+  answerTextInput.value = row.Resposta || "";
+  answerStatusSelect.value = row.Status || "Esclarecida";
+  
+  answerDoubtModal.classList.remove("hidden");
+}
+
+// ── SYNC DE DADOS COM O BANCO OFICIAL (WEBMASTER) ──
+async function triggerDatabaseSync() {
+  if (currentUser.perfil !== "Webmaster") return;
+  
+  const conf = confirm("Deseja sincronizar as chaves dos conselheiros com a Planilha Oficial (ID: 10IaUS3W5dpQ3XIcPXo5VzqRT_ihFAZ65IKkKA7fdhsA)? Novos conselheiros serão importados e senhas existentes serão mantidas.");
+  if (!conf) return;
+  
+  const btn = document.getElementById("btn-sync-database");
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
+  
+  if (API_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+    setTimeout(() => {
+      showAlert("success", "Sincronização Completa (Demo)", "O banco local foi populado com a lista padrão de 64 conselheiros.");
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }, 1200);
+  } else {
+    try {
+      const payload = {
+        chave: currentUser.chave,
+        acao: "atualizar_tabelas",
+        clientIp: clientInfo.ip,
+        clientLoc: clientInfo.loc,
+        clientUa: clientInfo.ua
+      };
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain" }
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        showAlert("success", "Sucesso!", result.message);
+        loadDashboardData(true);
+      } else {
+        showAlert("error", "Erro ao Sincronizar", result.message);
+      }
+    } catch (err) {
+      showAlert("error", "Erro de Rede", "Erro ao comunicar requisição de sincronismo.");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 }
 
 // INTERAÇÕES DE LOGS & UPDATES COM SERVIDOR
@@ -984,7 +1605,25 @@ function formatCurrency(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-// BANCO DE DADOS LOCAL
+function showInputError(inputEl, msgEl, text) {
+  inputEl.parentElement.classList.add("invalid");
+  msgEl.textContent = text;
+}
+
+function showAlert(type, title, desc) {
+  statusAlert.className = `alert alert-${type}`;
+  statusAlert.querySelector(".alert-title").textContent = title;
+  statusAlert.querySelector(".alert-desc").textContent = desc;
+  statusAlert.querySelector(".alert-icon i").className = type === "success" ? "fa-solid fa-circle-check" : "fa-solid fa-triangle-exclamation";
+  statusAlert.classList.remove("hidden");
+  
+  // Auto sumir em 5 segundos
+  setTimeout(() => {
+    statusAlert.classList.add("hidden");
+  }, 5000);
+}
+
+// BANCO DE DADOS LOCAL (OFFLINE / DEMO FALLBACKS)
 function getLocalDb() {
   const local = localStorage.getItem("cms_emendas_local");
   if (!local) {
@@ -996,4 +1635,17 @@ function getLocalDb() {
 
 function saveLocalDb(data) {
   localStorage.setItem("cms_emendas_local", JSON.stringify(data));
+}
+
+function getLocalDuvidas() {
+  const local = localStorage.getItem("cms_duvidas_local");
+  if (!local) {
+    localStorage.setItem("cms_duvidas_local", JSON.stringify(MOCK_DATA_DUVIDAS));
+    return MOCK_DATA_DUVIDAS;
+  }
+  return JSON.parse(local);
+}
+
+function saveLocalDuvidas(data) {
+  localStorage.setItem("cms_duvidas_local", JSON.stringify(data));
 }
