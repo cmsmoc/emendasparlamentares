@@ -1,1 +1,334 @@
-a
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Emendas Parlamentares — CMS Montes Claros</title>
+  
+  <!-- Fontes Oficiais do Design System -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Estilos Customizados baseados no Design System V2 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Tela de Login Overlay -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <div class="stripe"></div>
+      <div class="login-header">
+        <div class="login-logo-icon"><i class="fa-solid fa-key"></i></div>
+        <h2>Portal de Emendas CMS</h2>
+        <p>Insira sua Chave de Acesso para visualizar ou gerenciar as emendas parlamentares.</p>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-key">Chave de Acesso *</label>
+          <input type="password" id="login-key" placeholder="Ex: CMS-CONSELHEIRO-01" required>
+          <span class="error-msg" id="login-error-msg">Chave de acesso inválida ou expirada.</span>
+        </div>
+        <button type="submit" class="submit-btn" id="btn-login" style="width: 100%; margin-top: 15px;">
+          <span class="login-btn-text">Entrar no Portal</span>
+          <span class="login-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Validando...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stripe Component Oficial -->
+  <div class="stripe"></div>
+
+  <!-- Topbar Oficial -->
+  <nav class="topbar">
+    <div class="topbar-brand">CMS <span>MONTES CLAROS</span></div>
+    <div class="topbar-nav" id="nav-tabs">
+      <a href="#" class="nav-tab-link" data-tab="tab-upload" id="btn-tab-upload">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Cadastrar Proposta
+      </a>
+      <a href="#" class="nav-tab-link active" data-tab="tab-dashboard" id="btn-tab-dashboard">
+        <i class="fa-solid fa-chart-line"></i> Painel de Controle
+      </a>
+    </div>
+    <!-- Área do Usuário Logado -->
+    <div class="user-status-area" id="user-status-area">
+      <span class="user-info-text"><i class="fa-solid fa-user-shield"></i> <span id="user-display-name">Carregando...</span></span>
+      <button class="logout-btn" id="btn-logout" title="Sair do Portal"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </nav>
+
+  <!-- Hero Section Oficial adaptada para o Portal -->
+  <header class="hero">
+    <div class="hero-wrap">
+      <div class="hero-meta">
+        <span class="hero-tag hero-tag-yellow">Gestão de Emendas</span>
+        <span class="hero-tag hero-tag-outline">Exercício 2026</span>
+      </div>
+      <h1>Portal de <em>Emendas</em></h1>
+      <p class="hero-sub">Sistema institucional para recebimento, triagem e visualização dos planos de trabalho de emendas parlamentares em Montes Claros - MG.</p>
+      
+      <!-- Meta Grid dinâmico de progresso -->
+      <div class="hero-meta-grid">
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">Total Cadastrado</div>
+          <div class="hero-meta-value" id="hero-total-value">R$ 0,00</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">Qtd. Propostas</div>
+          <div class="hero-meta-value yellow" id="hero-total-count">0</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">Conselho Executivo</div>
+          <div class="hero-meta-value">CMSMOC 2.0</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Alerta Urgente de Orientação -->
+  <div class="alert-urgente" id="alert-indicador">
+    <div class="alert-urgente-icon">⚠️</div>
+    <div class="alert-urgente-text">Atenção: <span>O envio do plano de trabalho é obrigatório sob o Art. 18 do Decreto Municipal nº 5.197 para apreciação do conselho.</span></div>
+  </div>
+
+  <!-- Container Principal -->
+  <main class="container">
+    
+    <!-- ABA 1: FORMULÁRIO DE CADASTRO -->
+    <section id="tab-upload" class="tab-content">
+      <div class="card-upload">
+        <div class="card-upload-header">
+          <h2>Enviar Novo Plano de Trabalho</h2>
+          <p>Preencha os metadados da emenda. O arquivo PDF anexado será renomeado de acordo com as normas de padronização e enviado para o Drive.</p>
+        </div>
+        
+        <form id="proposal-form" novalidate>
+          <div class="form-grid">
+            
+            <!-- Entidade Beneficiária -->
+            <div class="form-group col-span-2">
+              <label for="entidade">Entidade Beneficiária *</label>
+              <select id="entidade" required>
+                <option value="" disabled selected>Selecione o hospital ou entidade...</option>
+                <option value="Hospital Universitário Clemente de Faria">Hospital Universitário Clemente de Faria</option>
+                <option value="Hospital Aroldo Tourinho">Hospital Aroldo Tourinho</option>
+                <option value="Hospital Dilson Godinho">Hospital Dilson Godinho</option>
+                <option value="Hospital das Clínicas Doutor Mário Ribeiro da Silveira">Hospital das Clínicas Doutor Mário Ribeiro da Silveira</option>
+                <option value="Hospital Santa Casa de Montes Claros">Hospital Santa Casa de Montes Claros</option>
+                <option value="Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)">Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)</option>
+                <option value="Outra">Outra Entidade</option>
+              </select>
+              <span class="error-msg">Por favor, selecione uma entidade.</span>
+            </div>
+            
+            <!-- Tipo de Emenda -->
+            <div class="form-group">
+              <label>Tipo de Emenda *</label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="tipoEmenda" value="Estadual" checked>
+                  <span>Estadual</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="tipoEmenda" value="Federal">
+                  <span>Federal</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- Número da Emenda -->
+            <div class="form-group">
+              <label for="numeroEmenda">Número da Emenda *</label>
+              <input type="text" id="numeroEmenda" placeholder="Ex: 197161" required pattern="\d+">
+              <span class="error-msg">Insira um número de emenda válido (somente números).</span>
+            </div>
+
+            <!-- Parlamentar / Autor da Emenda -->
+            <div class="form-group">
+              <label for="parlamentar">Parlamentar / Autor da Emenda *</label>
+              <input type="text" id="parlamentar" placeholder="Ex: Deputada Leninha, Deputado Gil Pereira" required>
+              <span class="error-msg">Por favor, insira o autor/parlamentar da emenda.</span>
+            </div>
+
+            <!-- Resolução / Identificador -->
+            <div class="form-group">
+              <label for="resolucao">Resolução / Portaria / Data</label>
+              <input type="text" id="resolucao" placeholder="Ex: Resolução SES/MG nº 11.050">
+            </div>
+
+            <!-- Valor da Emenda -->
+            <div class="form-group">
+              <label for="valor">Valor Repassado (R$) *</label>
+              <input type="number" id="valor" step="0.01" min="0.01" placeholder="Ex: 150000.00" required>
+              <span class="error-msg">Insira um valor numérico válido maior que zero.</span>
+            </div>
+
+            <!-- Objeto / Finalidade -->
+            <div class="form-group col-span-2">
+              <label for="objeto">Objeto / Finalidade da Emenda</label>
+              <textarea id="objeto" rows="3" placeholder="Descreva sucintamente o objetivo do plano de trabalho..."></textarea>
+            </div>
+
+            <!-- Upload do PDF -->
+            <div class="form-group col-span-2">
+              <label>Plano de Trabalho (PDF) *</label>
+              <div class="upload-dropzone" id="dropzone">
+                <input type="file" id="arquivoPdf" accept="application/pdf" class="hidden-file-input">
+                <div class="dropzone-content">
+                  <i class="fa-solid fa-file-arrow-up dropzone-icon"></i>
+                  <p class="dropzone-text-main">Arraste o arquivo PDF aqui ou <span>clique para buscar</span></p>
+                  <p class="dropzone-text-sub">Tamanho máximo aceito: 15MB</p>
+                </div>
+                <div class="file-preview hidden" id="file-preview">
+                  <i class="fa-solid fa-file-pdf file-icon"></i>
+                  <div class="file-info">
+                    <span class="file-name" id="preview-filename">nome_do_arquivo.pdf</span>
+                    <span class="file-size" id="preview-filesize">0 KB</span>
+                  </div>
+                  <button type="button" class="remove-file-btn" id="remove-file"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+              </div>
+              <span class="error-msg" id="pdf-error-msg">Por favor, anexe o PDF do plano de trabalho.</span>
+            </div>
+
+          </div>
+
+          <!-- Botão de Submissão -->
+          <div class="form-footer">
+            <button type="submit" class="submit-btn" id="btn-submit">
+              <span class="btn-text">Enviar Proposta</span>
+              <span class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Toast de Status / Feedback -->
+        <div id="status-alert" class="alert hidden">
+          <div class="alert-icon"><i class="fa-solid"></i></div>
+          <div class="alert-content">
+            <h4 class="alert-title">Sucesso!</h4>
+            <p class="alert-desc">A proposta foi registrada.</p>
+          </div>
+          <button class="alert-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ABA 2: PAINEL DE CONTROLE / DASHBOARD -->
+    <section id="tab-dashboard" class="tab-content active">
+      
+      <!-- Cards de Estatísticas Oficiais (oport-numbers) -->
+      <div class="oport-numbers">
+        <div class="oport-card blue">
+          <div class="oport-value" id="stat-total-count">0</div>
+          <div class="oport-label">Total de Propostas</div>
+        </div>
+        <div class="oport-card green">
+          <div class="oport-value yellow" id="stat-total-value">R$ 0,00</div>
+          <div class="oport-label">Valor Total Repassado</div>
+        </div>
+        <div class="oport-card navy">
+          <div class="oport-value" id="stat-pending-count" style="color: var(--cms-navy);">0</div>
+          <div class="oport-label">Em Análise / Recebidos</div>
+        </div>
+        <div class="oport-card yellow">
+          <div class="oport-value" id="stat-approved-count" style="color: var(--cms-green);">0</div>
+          <div class="oport-label">Propostas Aprovadas</div>
+        </div>
+      </div>
+
+      <!-- Filtros e Busca -->
+      <div class="dashboard-controls">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" placeholder="Buscar por número da emenda, resolução ou parlamentar...">
+        </div>
+        
+        <div class="filters-group">
+          <select id="filter-entidade">
+            <option value="">Todas as Entidades</option>
+            <option value="Hospital Universitário Clemente de Faria">Hosp. Clemente de Faria</option>
+            <option value="Hospital Aroldo Tourinho">Hosp. Aroldo Tourinho</option>
+            <option value="Hospital Dilson Godinho">Hosp. Dilson Godinho</option>
+            <option value="Hospital das Clínicas Doutor Mário Ribeiro da Silveira">Hosp. Mário Ribeiro</option>
+            <option value="Hospital Santa Casa de Montes Claros">Santa Casa</option>
+            <option value="Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)">Inst. Yova Rafha</option>
+            <option value="Outra">Outra</option>
+          </select>
+          
+          <select id="filter-status">
+            <option value="">Todos os Status</option>
+            <option value="Recebido">Recebido</option>
+            <option value="Em Análise">Em Análise</option>
+            <option value="Aprovado">Aprovado</option>
+            <option value="Devolvido para Correção">Devolvido p/ Correção</option>
+          </select>
+
+          <button id="btn-refresh" class="refresh-btn" title="Atualizar dados">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela de Dados Oficial (cms-table) -->
+      <div class="table-wrap">
+        <div class="loading-overlay" id="table-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Carregando emendas cadastradas do Google Sheets...</p>
+        </div>
+        
+        <table class="cms-table" id="emendas-table">
+          <thead>
+            <tr>
+              <th>Data de Envio</th>
+              <th>Entidade Beneficiada</th>
+              <th>Nº Emenda</th>
+              <th>Tipo</th>
+              <th>Parlamentar / Autor</th>
+              <th>Resolução/Portaria</th>
+              <th>Valor Repassado</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Inserido dinamicamente via JS -->
+          </tbody>
+        </table>
+        
+        <div id="no-data-msg" class="no-data-card hidden">
+          <i class="fa-solid fa-folder-open"></i>
+          <h3>Nenhuma proposta encontrada</h3>
+          <p>Tente ajustar os filtros de busca ou cadastre uma nova proposta.</p>
+        </div>
+      </div>
+      
+      <!-- Citação (Fala V2) como Dica de Fluxo -->
+      <div class="fala green">
+        <strong>Gerenciamento Automático:</strong> Os dados exibidos acima são atualizados em tempo real a partir de uma planilha do Google Sheets. Você pode atualizar o status das emendas na planilha para <code>Recebido</code>, <code>Em Análise</code>, <code>Aprovado</code> ou <code>Devolvido para Correção</code> e as cores das linhas e estatísticas serão recalculadas automaticamente.
+      </div>
+      
+      <!-- Riscos (Risco-item V2) -->
+      <div class="risco-item" style="margin-top: 24px;">
+        <span class="risco-badge eliminatorio">Eliminatório</span>
+        <div class="risco-content">
+          <h4>Ausência de Plano de Trabalho ou Homologação do CMSMOC</h4>
+          <p>Emendas parlamentares pendentes de apreciação do Conselho Municipal de Saúde não serão autorizadas para pagamento pelo Fundo Municipal de Saúde.</p>
+        </div>
+      </div>
+      
+    </section>
+    
+  </main>
+
+  <!-- Footer Oficial -->
+  <footer>
+    CMS Montes Claros — Gestão de Emendas Parlamentares — 2026
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
