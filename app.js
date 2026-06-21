@@ -384,8 +384,12 @@ function initTabs() {
       e.preventDefault();
       const targetTab = tab.getAttribute("data-tab");
       
-      tabs.forEach(t => t.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
+      // Select all nav links and contents dynamically since we added new ones
+      const allTabs = document.querySelectorAll(".nav-tab-link");
+      const allContents = document.querySelectorAll(".tab-content");
+      
+      allTabs.forEach(t => t.classList.remove("active"));
+      allContents.forEach(c => c.classList.remove("active"));
       
       tab.classList.add("active");
       const targetEl = document.getElementById(targetTab);
@@ -393,6 +397,8 @@ function initTabs() {
       
       if (targetTab === "tab-duvidas") {
         renderDoubtBoard();
+      } else if (targetTab === "tab-relatorios") {
+        renderReportsTab();
       }
     });
   });
@@ -428,6 +434,11 @@ async function handleLoginSubmit(e) {
         
         if (match.primeiroAcesso) {
           // Abre o modal de alteração obrigatória
+          const firstWordOfUser = tempUser.usuario.split("(")[0].trim().split(" ")[0];
+          const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
+          document.getElementById("force-prefix").textContent = normalizedFirstName;
+          document.getElementById("force-suffix").value = "";
+          document.getElementById("force-password-preview-box").style.display = "none";
           forcePasswordOverlay.classList.remove("hidden");
         } else {
           currentUser = tempUser;
@@ -469,6 +480,11 @@ async function handleLoginSubmit(e) {
         };
         
         if (result.profile.primeiroAcesso) {
+          const firstWordOfUser = tempUser.usuario.split("(")[0].trim().split(" ")[0];
+          const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
+          document.getElementById("force-prefix").textContent = normalizedFirstName;
+          document.getElementById("force-suffix").value = "";
+          document.getElementById("force-password-preview-box").style.display = "none";
           forcePasswordOverlay.classList.remove("hidden");
         } else {
           currentUser = tempUser;
@@ -502,34 +518,104 @@ function handleLogout() {
   loginOverlay.classList.remove("hidden");
 }
 
-// ── FLUXO DE ALTERAÇÃO DE CHAVE ──
+// ── FLUXO DE ALTERAÇÃO DE CHAVE E ESQUECI MINHA SENHA ──
 
 function initPasswordModals() {
-  // Modal de primeiro acesso obrigatório
+  const forcePrefix = document.getElementById("force-prefix");
+  const forceSuffix = document.getElementById("force-suffix");
+  const forcePreviewBox = document.getElementById("force-password-preview-box");
+  const forcePreviewText = document.getElementById("force-password-preview-text");
+  const forceSuccessDiv = document.getElementById("force-password-success");
+  const displayFinalPassword = document.getElementById("display-final-password");
+  const btnCopyNewKey = document.getElementById("btn-copy-new-key");
+  const btnForceContinue = document.getElementById("btn-force-continue");
+
+  const generalPrefix = document.getElementById("general-prefix");
+  const generalSuffix = document.getElementById("general-suffix");
+  const generalPreviewBox = document.getElementById("general-password-preview-box");
+  const generalPreviewText = document.getElementById("general-password-preview-text");
+  
+  const linkForgotPassword = document.getElementById("link-forgot-password");
+  const forgotPasswordModal = document.getElementById("forgot-password-modal");
+  const btnCloseForgotModal = document.getElementById("btn-close-forgot-modal");
+  const btnOkForgotModal = document.getElementById("btn-ok-forgot-modal");
+
+  // Auxiliar para normalizar o sufixo da senha (letras e números maiúsculos sem acentos)
+  function formatPasswordSuffix(val) {
+    return removerAcentos(val)
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+  }
+
+  // Monitorar input do primeiro acesso
+  forceSuffix.addEventListener("input", (e) => {
+    const formatted = formatPasswordSuffix(e.target.value);
+    e.target.value = formatted;
+    
+    if (formatted) {
+      forcePreviewText.textContent = forcePrefix.textContent + formatted;
+      forcePreviewBox.style.display = "block";
+    } else {
+      forcePreviewBox.style.display = "none";
+    }
+  });
+
+  // Monitorar input da alteração de senha geral
+  generalSuffix.addEventListener("input", (e) => {
+    const formatted = formatPasswordSuffix(e.target.value);
+    e.target.value = formatted;
+    
+    if (formatted) {
+      generalPreviewText.textContent = generalPrefix.textContent + formatted;
+      generalPreviewBox.style.display = "block";
+    } else {
+      generalPreviewBox.style.display = "none";
+    }
+  });
+
+  // Modal Esqueci Senha
+  linkForgotPassword.addEventListener("click", (e) => {
+    e.preventDefault();
+    forgotPasswordModal.classList.remove("hidden");
+  });
+  btnCloseForgotModal.addEventListener("click", () => forgotPasswordModal.classList.add("hidden"));
+  btnOkForgotModal.addEventListener("click", () => forgotPasswordModal.classList.add("hidden"));
+
+  // Copiar senha no Primeiro Acesso
+  btnCopyNewKey.addEventListener("click", () => {
+    navigator.clipboard.writeText(displayFinalPassword.textContent).then(() => {
+      const originalText = btnCopyNewKey.innerHTML;
+      btnCopyNewKey.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+      setTimeout(() => {
+        btnCopyNewKey.innerHTML = originalText;
+      }, 1500);
+    });
+  });
+
+  // Prosseguir para o Portal após redefinir no Primeiro Acesso
+  btnForceContinue.addEventListener("click", () => {
+    forcePasswordOverlay.classList.add("hidden");
+    loginOverlay.classList.add("hidden");
+    applyUserPermissions();
+    loadDashboardData();
+    
+    // Resetar estado visual do card para futuros usos
+    forcePasswordForm.reset();
+    forcePasswordForm.classList.remove("hidden");
+    forceSuccessDiv.classList.add("hidden");
+    forcePreviewBox.style.display = "none";
+  });
+
+  // Submit do Primeiro Acesso
   forcePasswordForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const newKey = forceNewPasswordInput.value.trim().toUpperCase();
-    const confKey = forceConfirmPasswordInput.value.trim().toUpperCase();
-    
-    if (newKey.length < 4) {
-      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "A nova chave deve ter pelo menos 4 caracteres.");
+    const suffix = forceSuffix.value.trim();
+    if (suffix.length < 2) {
+      showInputError(forceSuffix, forcePasswordErrorMsg, "Por favor, digite pelo menos 2 caracteres complementares.");
       return;
     }
     
-    if (newKey !== confKey) {
-      showInputError(forceConfirmPasswordInput, forcePasswordErrorMsg, "As chaves não conferem.");
-      return;
-    }
-    
-    // Validar que começa com o primeiro nome do conselheiro
-    const firstWordOfUser = tempUser.usuario.split("(")[0].trim().split(" ")[0];
-    const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
-    const normalizedNewKey = removerAcentos(newKey).toUpperCase();
-    
-    if (!normalizedNewKey.startsWith(normalizedFirstName)) {
-      showInputError(forceNewPasswordInput, forcePasswordErrorMsg, `A sua nova chave deve começar com o seu primeiro nome: ${normalizedFirstName}`);
-      return;
-    }
+    const newKey = forcePrefix.textContent + suffix;
     
     btnForceSubmit.disabled = true;
     btnForceSubmit.querySelector(".btn-text").classList.add("hidden");
@@ -540,7 +626,7 @@ function initPasswordModals() {
     if (isMock) {
       setTimeout(() => {
         if (checkMockKeyExists(newKey, tempUser.chave)) {
-          showInputError(forceNewPasswordInput, forcePasswordErrorMsg, "Esta chave já está em uso por outro conselheiro.");
+          showInputError(forceSuffix, forcePasswordErrorMsg, "Esta chave já está em uso por outro conselheiro.");
           btnForceSubmit.disabled = false;
           btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
           btnForceSubmit.querySelector(".spinner").classList.add("hidden");
@@ -549,16 +635,18 @@ function initPasswordModals() {
         
         salvarNovaChaveMock(tempUser.chave, newKey);
         currentUser = { chave: newKey, usuario: tempUser.usuario, perfil: tempUser.perfil };
+        
+        // Exibir tela de sucesso
+        displayFinalPassword.textContent = newKey;
+        forcePasswordForm.classList.add("hidden");
+        forceSuccessDiv.classList.remove("hidden");
+        
+        // Salvar sessão localmente
         localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-        applyUserPermissions();
-        forcePasswordOverlay.classList.add("hidden");
-        loginOverlay.classList.add("hidden");
-        loadDashboardData();
-        forcePasswordForm.reset();
+        
         btnForceSubmit.disabled = false;
         btnForceSubmit.querySelector(".btn-text").classList.remove("hidden");
         btnForceSubmit.querySelector(".spinner").classList.add("hidden");
-        showAlert("success", "Chave Atualizada", "Sua nova chave de acesso foi salva!");
       }, 800);
     } else {
       try {
@@ -579,13 +667,14 @@ function initPasswordModals() {
         
         if (result.status === "success") {
           currentUser = { chave: newKey, usuario: tempUser.usuario, perfil: tempUser.perfil };
+          
+          // Exibir tela de sucesso
+          displayFinalPassword.textContent = newKey;
+          forcePasswordForm.classList.add("hidden");
+          forceSuccessDiv.classList.remove("hidden");
+          
+          // Salvar sessão localmente
           localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-          applyUserPermissions();
-          forcePasswordOverlay.classList.add("hidden");
-          loginOverlay.classList.add("hidden");
-          loadDashboardData();
-          forcePasswordForm.reset();
-          showAlert("success", "Chave Atualizada", "Sua nova chave de acesso foi configurada com sucesso.");
         } else {
           showAlert("error", "Erro ao alterar", result.message);
         }
@@ -601,9 +690,15 @@ function initPasswordModals() {
 
   // Modal Geral de Alterar Chave (Topbar)
   btnOpenChangePassword.addEventListener("click", () => {
-    generalChangePwdForm.reset();
-    generalPwdErrorMsg.parentElement.classList.remove("invalid");
-    changePasswordModal.classList.remove("hidden");
+    if (currentUser) {
+      const firstWordOfUser = currentUser.usuario.split("(")[0].trim().split(" ")[0];
+      const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
+      generalPrefix.textContent = normalizedFirstName;
+      generalSuffix.value = "";
+      generalPreviewBox.style.display = "none";
+      generalPwdErrorMsg.parentElement.classList.remove("invalid");
+      changePasswordModal.classList.remove("hidden");
+    }
   });
   
   btnCancelPwdModal.addEventListener("click", () => changePasswordModal.classList.add("hidden"));
@@ -611,29 +706,13 @@ function initPasswordModals() {
   
   generalChangePwdForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const newKey = generalNewPasswordInput.value.trim().toUpperCase();
-    const confKey = generalConfirmPasswordInput.value.trim().toUpperCase();
-    
-    if (newKey.length < 4) {
-      showInputError(generalNewPasswordInput, generalPwdErrorMsg, "Mínimo 4 caracteres.");
+    const suffix = generalSuffix.value.trim();
+    if (suffix.length < 2) {
+      showInputError(generalSuffix, generalPwdErrorMsg, "Digite pelo menos 2 caracteres complementares.");
       return;
     }
     
-    if (newKey !== confKey) {
-      showInputError(generalConfirmPasswordInput, generalPwdErrorMsg, "As chaves não conferem.");
-      return;
-    }
-    
-    // Validar que começa com o primeiro nome do conselheiro
-    const firstWordOfUser = currentUser.usuario.split("(")[0].trim().split(" ")[0];
-    const normalizedFirstName = removerAcentos(firstWordOfUser).toUpperCase();
-    const normalizedNewKey = removerAcentos(newKey).toUpperCase();
-    
-    if (!normalizedNewKey.startsWith(normalizedFirstName)) {
-      showInputError(generalNewPasswordInput, generalPwdErrorMsg, `A sua nova chave deve começar com o seu primeiro nome: ${normalizedFirstName}`);
-      return;
-    }
-    
+    const newKey = generalPrefix.textContent + suffix;
     const btnSave = document.getElementById("btn-save-pwd-modal");
     btnSave.disabled = true;
     
@@ -641,14 +720,14 @@ function initPasswordModals() {
     
     if (isMock) {
       if (checkMockKeyExists(newKey, currentUser.chave)) {
-        showInputError(generalNewPasswordInput, generalPwdErrorMsg, "Esta chave já está em uso por outro conselheiro.");
+        showInputError(generalSuffix, generalPwdErrorMsg, "Esta chave já está em uso por outro conselheiro.");
         btnSave.disabled = false;
         return;
       }
       salvarNovaChaveMock(currentUser.chave, newKey);
       currentUser.chave = newKey;
       localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-      showAlert("success", "Chave Alterada", "Chave de acesso alterada com sucesso.");
+      showAlert("success", "Chave Alterada", `Sua nova chave de acesso é: ${newKey}. Guarde-a com cuidado.`);
       changePasswordModal.classList.add("hidden");
       btnSave.disabled = false;
     } else {
@@ -670,7 +749,7 @@ function initPasswordModals() {
         if (result.status === "success") {
           currentUser.chave = newKey;
           localStorage.setItem("cms_user_session", JSON.stringify(currentUser));
-          showAlert("success", "Chave Alterada", "Sua chave de acesso foi alterada no Google Sheets!");
+          showAlert("success", "Chave Alterada", `Sua nova chave de acesso é: ${newKey}. Ela foi atualizada no sistema.`);
           changePasswordModal.classList.add("hidden");
         } else {
           showAlert("error", "Erro ao salvar", result.message);
@@ -1091,6 +1170,7 @@ async function loadDashboardData(forceRefresh = false) {
 
 function renderDashboard() {
   filterData();
+  renderDashboardDoubtPanel();
 }
 
 function filterData() {
@@ -1188,15 +1268,15 @@ function filterData() {
     const valor = parseFloat(row["Valor"]) || 0;
     
     tr.innerHTML = `
-      <td>${formattedDate}</td>
-      <td style="font-weight: 600; color: var(--cms-navy);">${row["Entidade"]}</td>
-      <td><strong>${numero}</strong></td>
-      <td><span class="badge-status status-todo" style="background: #E0F2FE; color: #0369A1;">${row["Tipo"]}</span></td>
-      <td><strong>${row["Parlamentar / Autor"] || "Não informado"}</strong></td>
-      <td>${row["Resolução/Documento"] || "Não informado"}</td>
-      <td><strong style="color: var(--cms-blue);">${formatCurrency(valor)}</strong></td>
-      <td>${statusCellContent}</td>
-      <td style="white-space: nowrap; display: flex; gap: 4px; align-items: center;">${actionCellContent}</td>
+      <td data-label="Data de Envio">${formattedDate}</td>
+      <td data-label="Entidade Beneficiada" style="font-weight: 600; color: var(--cms-navy);">${row["Entidade"]}</td>
+      <td data-label="Nº Emenda"><strong>${numero}</strong></td>
+      <td data-label="Tipo"><span class="badge-status status-todo" style="background: #E0F2FE; color: #0369A1;">${row["Tipo"]}</span></td>
+      <td data-label="Parlamentar / Autor"><strong>${row["Parlamentar / Autor"] || "Não informado"}</strong></td>
+      <td data-label="Resolução/Portaria">${row["Resolução/Documento"] || "Não informado"}</td>
+      <td data-label="Valor Repassado"><strong style="color: var(--cms-blue);">${formatCurrency(valor)}</strong></td>
+      <td data-label="Status">${statusCellContent}</td>
+      <td data-label="Ações" style="white-space: nowrap; display: flex; gap: 4px; align-items: center;">${actionCellContent}</td>
     `;
     
     tableBody.appendChild(tr);
@@ -1735,3 +1815,544 @@ function getLocalDuvidas() {
 function saveLocalDuvidas(data) {
   localStorage.setItem("cms_duvidas_local", JSON.stringify(data));
 }
+
+// ── MÓDULO DE DÚVIDAS DO DASHBOARD E INLINE RESPONDING ──
+
+function renderDashboardDoubtPanel() {
+  const toggleHeader = document.getElementById("toggle-dashboard-duvidas");
+  const sectionContent = document.getElementById("content-dashboard-duvidas");
+  const arrow = document.getElementById("arrow-dashboard-duvidas");
+  const listContainer = document.getElementById("dashboard-duvidas-list");
+  const noDoubtMsg = document.getElementById("no-dashboard-duvidas-msg");
+  
+  const alertBox = document.getElementById("regulacao-alert-duvidas");
+  const pendingList = document.getElementById("regulacao-pendentes-list");
+  
+  if (!listContainer) return;
+  
+  // 1. Configurar evento de toggle (accordion) se ainda não foi feito
+  if (!toggleHeader.dataset.bound) {
+    toggleHeader.addEventListener("click", () => {
+      const isCollapsed = sectionContent.style.display === "none";
+      if (isCollapsed) {
+        sectionContent.style.display = "block";
+        arrow.className = "fa-solid fa-chevron-up";
+      } else {
+        sectionContent.style.display = "none";
+        arrow.className = "fa-solid fa-chevron-down";
+      }
+    });
+    toggleHeader.dataset.bound = "true";
+    sectionContent.style.display = "block"; // Começa aberto por padrão
+  }
+  
+  // 2. Atualizar contadores no topo
+  updateDoubtStats();
+  
+  // 3. Limpar painéis
+  listContainer.innerHTML = "";
+  pendingList.innerHTML = "";
+  
+  if (duvidasData.length === 0) {
+    noDoubtMsg.classList.remove("hidden");
+    alertBox.classList.add("hidden");
+    return;
+  }
+  
+  noDoubtMsg.classList.add("hidden");
+  
+  const isWebmaster = currentUser.perfil === "Webmaster";
+  const isRegulacao = currentUser.perfil === "Administrador" || isWebmaster;
+  
+  // Filtrar as pendentes para a Regulação
+  const pendentesRegulacao = duvidasData.filter(d => d.Status === "Pendente");
+  
+  if (isRegulacao && pendentesRegulacao.length > 0) {
+    alertBox.classList.remove("hidden");
+    
+    pendentesRegulacao.forEach(row => {
+      const card = createDoubtCard(row, true);
+      pendingList.appendChild(card);
+    });
+  } else {
+    alertBox.classList.add("hidden");
+  }
+  
+  // Exibir todas as dúvidas no feed geral (ordenadas por data descendente)
+  const sorted = [...duvidasData].sort((a, b) => new Date(b.Data) - new Date(a.Data));
+  sorted.forEach(row => {
+    const card = createDoubtCard(row, false);
+    listContainer.appendChild(card);
+  });
+}
+
+function updateDoubtStats() {
+  const total = duvidasData.length;
+  const pendentes = duvidasData.filter(d => d.Status === "Pendente").length;
+  const respondidas = duvidasData.filter(d => d.Status === "Esclarecida").length;
+  
+  document.getElementById("doubt-stat-enviadas").textContent = total;
+  document.getElementById("doubt-stat-pendentes").textContent = pendentes;
+  document.getElementById("doubt-stat-respondidas").textContent = respondidas;
+}
+
+function createDoubtCard(row, isInlineAnswer = false) {
+  const card = document.createElement("div");
+  card.className = "doubt-card";
+  
+  const dDate = new Date(row.Data);
+  const formattedDate = !isNaN(dDate.getTime()) ? 
+    dDate.toLocaleDateString("pt-BR") + " " + dDate.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : "";
+    
+  let autor = row.AutorExibicao || "Conselho";
+  if (currentUser.perfil === "Administrador" && checkIsMockMode()) {
+    autor = "Conselho";
+  }
+  
+  let statusClass = "status-todo";
+  if (row.Status === "Em Discussão") statusClass = "status-warn";
+  else if (row.Status === "Esclarecida") statusClass = "status-ok";
+  
+  let answerHtml = "";
+  if (row.Resposta) {
+    const aDate = new Date(row.Data_Resposta);
+    const formattedDateResp = !isNaN(aDate.getTime()) ? 
+      aDate.toLocaleDateString("pt-BR") + " " + aDate.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : "";
+    
+    answerHtml = `
+      <div class="doubt-answer-body" style="margin-top: 10px; margin-bottom: 15px;">
+        <div class="doubt-answer-header">
+          <span>Esclarecimento Técnico</span>
+          <span>${row.Responsável} — ${formattedDateResp}</span>
+        </div>
+        <div class="doubt-answer-text">${row.Resposta}</div>
+      </div>
+    `;
+  }
+  
+  const isWebmaster = currentUser.perfil === "Webmaster";
+  const isRegulacao = currentUser.perfil === "Administrador" || isWebmaster;
+  
+  let inlineFormHtml = "";
+  if (isRegulacao && isInlineAnswer) {
+    inlineFormHtml = `
+      <div class="inline-answer-container" id="inline-answer-box-${row.ID}" style="border-top: 1px solid var(--cms-border); background: var(--cms-off); padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+        <label style="font-weight: 700; font-size: 0.8rem; color: var(--cms-navy); text-transform: uppercase;">Responder diretamente:</label>
+        <textarea id="inline-text-${row.ID}" rows="3" placeholder="Escreva o esclarecimento técnico oficial aqui..." required style="width: 100%; border: 1px solid var(--cms-border); padding: 10px; font-size: 0.85rem; border-radius: var(--border-radius-sm); resize: vertical;"></textarea>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--cms-muted);">Alterar Status:</label>
+            <select id="inline-status-${row.ID}" style="padding: 5px; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--cms-border);">
+              <option value="Esclarecida">Esclarecida (Concluída)</option>
+              <option value="Em Discussão">Em Discussão</option>
+              <option value="Pendente">Pendente</option>
+            </select>
+          </div>
+          <button type="button" class="submit-btn btn-salvar-inline-resposta" data-id="${row.ID}" style="background: var(--cms-green); font-size: 0.8rem; padding: 6px 14px; border-radius: var(--border-radius-sm); border: none; color: white; cursor: pointer;">
+            Salvar Resposta
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (isRegulacao && !row.Resposta) {
+    inlineFormHtml = `
+      <div style="padding: 10px 20px; border-top: 1px solid var(--cms-border); background: var(--cms-off); display: flex; justify-content: flex-end;">
+        <button class="action-btn btn-expand-inline-responder" data-id="${row.ID}" style="background: var(--cms-navy); color: white; border: none; font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; border-radius: var(--border-radius-sm);">
+          <i class="fa-solid fa-reply"></i> Responder
+        </button>
+      </div>
+      <div class="inline-answer-container hidden" id="inline-answer-box-${row.ID}" style="border-top: 1px solid var(--cms-border); background: var(--cms-off); padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+        <label style="font-weight: 700; font-size: 0.8rem; color: var(--cms-navy); text-transform: uppercase;">Responder diretamente:</label>
+        <textarea id="inline-text-${row.ID}" rows="3" placeholder="Escreva o esclarecimento técnico oficial aqui..." required style="width: 100%; border: 1px solid var(--cms-border); padding: 10px; font-size: 0.85rem; border-radius: var(--border-radius-sm); resize: vertical;"></textarea>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--cms-muted);">Alterar Status:</label>
+            <select id="inline-status-${row.ID}" style="padding: 5px; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--cms-border);">
+              <option value="Esclarecida">Esclarecida (Concluída)</option>
+              <option value="Em Discussão">Em Discussão</option>
+              <option value="Pendente">Pendente</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="nav-btn btn-cancelar-inline-resposta" data-id="${row.ID}" style="background: white; border: 1px solid var(--cms-border); font-size: 0.8rem; padding: 6px 12px; border-radius: var(--border-radius-sm); cursor: pointer;">
+              Cancelar
+            </button>
+            <button type="button" class="submit-btn btn-salvar-inline-resposta" data-id="${row.ID}" style="background: var(--cms-green); font-size: 0.8rem; padding: 6px 14px; border-radius: var(--border-radius-sm); border: none; color: white; cursor: pointer;">
+              Salvar Resposta
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  card.innerHTML = `
+    <div class="doubt-card-header">
+      <div class="doubt-author"><i class="fa-solid fa-circle-user"></i> ${autor}</div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="badge-status ${statusClass}">${row.Status}</span>
+        <span class="doubt-meta">${formattedDate}</span>
+      </div>
+    </div>
+    <div class="doubt-question-body" style="padding: 15px 20px;">${row.Dúvida}</div>
+    ${answerHtml}
+    ${inlineFormHtml}
+  `;
+  
+  // Bind nos botões inline do card
+  const btnSalvar = card.querySelector(".btn-salvar-inline-resposta");
+  if (btnSalvar) {
+    btnSalvar.addEventListener("click", async () => {
+      const txtArea = card.querySelector(`#inline-text-${row.ID}`);
+      const selectStatus = card.querySelector(`#inline-status-${row.ID}`);
+      const text = txtArea.value.trim();
+      const status = selectStatus.value;
+      if (!text) {
+        alert("Por favor, digite uma resposta antes de salvar.");
+        return;
+      }
+      await enviarRespostaDuvida(row.ID, text, status, btnSalvar);
+    });
+  }
+  
+  const btnExpand = card.querySelector(".btn-expand-inline-responder");
+  const btnCancelInline = card.querySelector(".btn-cancelar-inline-resposta");
+  const inlineBox = card.querySelector(`#inline-answer-box-${row.ID}`);
+  
+  if (btnExpand) {
+    btnExpand.addEventListener("click", () => {
+      inlineBox.classList.remove("hidden");
+      btnExpand.classList.add("hidden");
+    });
+  }
+  if (btnCancelInline) {
+    btnCancelInline.addEventListener("click", () => {
+      inlineBox.classList.add("hidden");
+      btnExpand.classList.remove("hidden");
+    });
+  }
+  
+  return card;
+}
+
+async function enviarRespostaDuvida(id, resp, status, btnSubmitElement = null) {
+  if (!resp) return;
+  
+  if (btnSubmitElement) {
+    btnSubmitElement.disabled = true;
+  }
+  
+  if (checkIsMockMode()) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const list = getLocalDuvidas();
+        const row = list.find(d => d.ID === id);
+        if (row) {
+          row.Resposta = resp;
+          row.Status = status;
+          row.Responsável = currentUser.usuario;
+          row.Data_Resposta = new Date().toISOString();
+        }
+        saveLocalDuvidas(list);
+        showAlert("success", "✅ Respondido (Demo)", "Resposta salva localmente.");
+        if (btnSubmitElement) btnSubmitElement.disabled = false;
+        loadDashboardData();
+        resolve(true);
+      }, 500);
+    });
+  } else {
+    try {
+      const payload = {
+        chave: currentUser.chave,
+        acao: "responder_duvida",
+        idDuvida: id,
+        resposta: resp,
+        novoStatus: status,
+        clientIp: clientInfo.ip,
+        clientLoc: clientInfo.loc,
+        clientUa: clientInfo.ua
+      };
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain" }
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        showAlert("success", "✅ Resposta Enviada!", "Os conselheiros foram notificados por email.");
+        loadDashboardData();
+        return true;
+      } else {
+        showAlert("error", "Erro", result.message);
+        return false;
+      }
+    } catch (err) {
+      showAlert("error", "Erro de Rede", "Erro ao salvar esclarecimento.");
+      return false;
+    } finally {
+      if (btnSubmitElement) btnSubmitElement.disabled = false;
+    }
+  }
+}
+
+// ── MÓDULO DE RELATÓRIOS (TÉCNICOS E GERADOR DINÂMICO) ──
+
+let reportsEventsInitialized = false;
+
+function renderReportsTab() {
+  if (!reportsEventsInitialized) {
+    initReportEvents();
+    reportsEventsInitialized = true;
+  }
+  generateFilteredReport();
+}
+
+function initReportEvents() {
+  const btnSubtabTecnicos = document.getElementById("btn-subtab-tecnicos");
+  const btnSubtabGerador = document.getElementById("btn-subtab-gerador");
+  const subtabTecnicosContent = document.getElementById("subtab-tecnicos-content");
+  const subtabGeradorContent = document.getElementById("subtab-gerador-content");
+  
+  // Alternância de Sub-Abas
+  btnSubtabTecnicos.addEventListener("click", () => {
+    btnSubtabTecnicos.style.background = "var(--cms-blue)";
+    btnSubtabTecnicos.style.color = "white";
+    btnSubtabGerador.style.background = "var(--cms-white)";
+    btnSubtabGerador.style.color = "var(--cms-navy)";
+    subtabTecnicosContent.classList.remove("hidden");
+    subtabGeradorContent.classList.add("hidden");
+  });
+  
+  btnSubtabGerador.addEventListener("click", () => {
+    btnSubtabGerador.style.background = "var(--cms-blue)";
+    btnSubtabGerador.style.color = "white";
+    btnSubtabTecnicos.style.background = "var(--cms-white)";
+    btnSubtabTecnicos.style.color = "var(--cms-navy)";
+    subtabGeradorContent.classList.remove("hidden");
+    subtabTecnicosContent.classList.add("hidden");
+    generateFilteredReport();
+  });
+  
+  // Eventos de Filtro no Gerador
+  const filterEnt = document.getElementById("rep-filter-entidade");
+  const filterTipo = document.getElementById("rep-filter-tipo");
+  const filterStat = document.getElementById("rep-filter-status");
+  
+  filterEnt.addEventListener("change", generateFilteredReport);
+  filterTipo.addEventListener("change", generateFilteredReport);
+  filterStat.addEventListener("change", generateFilteredReport);
+  
+  // Checkboxes de colunas
+  const checkboxes = document.querySelectorAll('#report-generator-form input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    cb.addEventListener("change", generateFilteredReport);
+  });
+  
+  // Ações de exportar
+  document.getElementById("btn-rep-copy").addEventListener("click", copyReportToClipboard);
+  document.getElementById("report-generator-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    exportReportToCSV();
+  });
+}
+
+function getFilteredReportData() {
+  const entVal = document.getElementById("rep-filter-entidade").value;
+  const tipoVal = document.getElementById("rep-filter-tipo").value;
+  const statusVal = document.getElementById("rep-filter-status").value;
+  
+  return emendasData.filter(row => {
+    const entidade = (row["Entidade"] || "").toString();
+    const tipo = (row["Tipo"] || "").toString();
+    const status = (row["Status"] || "").toString();
+    
+    const matchesEnt = !entVal || entidade === entVal;
+    const matchesTipo = !tipoVal || tipo === tipoVal;
+    const matchesStatus = !statusVal || status === statusVal;
+    
+    return matchesEnt && matchesTipo && matchesStatus;
+  });
+}
+
+function generateFilteredReport() {
+  const filtered = getFilteredReportData();
+  
+  // 1. Atualizar cards de resumo financeiro
+  const totalValue = filtered.reduce((acc, row) => acc + (parseFloat(row["Valor"]) || 0), 0);
+  document.getElementById("rep-summary-total-value").textContent = formatCurrency(totalValue);
+  document.getElementById("rep-summary-total-count").textContent = filtered.length;
+  
+  // 2. Montar cabeçalho e corpo da tabela de pré-visualização com base nas colunas selecionadas
+  const thead = document.getElementById("report-preview-thead");
+  const tbody = document.getElementById("report-preview-tbody");
+  
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
+  
+  // Identificar colunas selecionadas
+  const selectedCols = [];
+  const checkboxes = document.querySelectorAll('#report-generator-form input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    if (cb.checked) {
+      selectedCols.push({
+        id: cb.getAttribute("data-col"),
+        label: cb.parentElement.textContent.trim()
+      });
+    }
+  });
+  
+  if (selectedCols.length === 0) {
+    thead.innerHTML = "<tr><th>Nenhuma coluna selecionada</th></tr>";
+    return;
+  }
+  
+  // Renderizar o thead
+  const trHead = document.createElement("tr");
+  selectedCols.forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col.label;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+  
+  // Renderizar o tbody (limitar a 30 linhas para pré-visualização rápida)
+  const previewRows = filtered.slice(0, 30);
+  if (previewRows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = selectedCols.length;
+    td.textContent = "Nenhuma emenda corresponde aos filtros definidos.";
+    td.style.textAlign = "center";
+    td.style.color = "var(--cms-muted)";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+  
+  previewRows.forEach(row => {
+    const tr = document.createElement("tr");
+    selectedCols.forEach(col => {
+      const td = document.createElement("td");
+      let val = row[col.id];
+      
+      // Formatação especial
+      if (col.id === "Valor") {
+        val = formatCurrency(parseFloat(val) || 0);
+      } else if (col.id === "Data de Envio" && val) {
+        const d = new Date(val);
+        val = !isNaN(d.getTime()) ? d.toLocaleDateString("pt-BR") : val;
+      }
+      
+      td.textContent = val !== undefined && val !== null ? val : "";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function exportReportToCSV() {
+  const filtered = getFilteredReportData();
+  if (filtered.length === 0) {
+    showAlert("error", "Sem Dados", "Não há dados para exportar com os filtros atuais.");
+    return;
+  }
+  
+  // Identificar colunas selecionadas
+  const selectedCols = [];
+  const checkboxes = document.querySelectorAll('#report-generator-form input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    if (cb.checked) {
+      selectedCols.push({
+        id: cb.getAttribute("data-col"),
+        label: cb.parentElement.textContent.trim()
+      });
+    }
+  });
+  
+  if (selectedCols.length === 0) {
+    showAlert("error", "Sem Colunas", "Selecione pelo menos uma coluna para exportar.");
+    return;
+  }
+  
+  // Montar CSV string (Excel em pt-BR usa ponto e vírgula ";" como separador e codificação UTF-8 com BOM)
+  let csvContent = "\ufeff"; // UTF-8 BOM
+  
+  // Cabeçalho
+  csvContent += selectedCols.map(col => `"${col.label.replace(/"/g, '""')}"`).join(";") + "\n";
+  
+  // Conteúdo
+  filtered.forEach(row => {
+    const line = selectedCols.map(col => {
+      let val = row[col.id];
+      if (col.id === "Valor") {
+        val = (parseFloat(val) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else if (col.id === "Data de Envio" && val) {
+        const d = new Date(val);
+        val = !isNaN(d.getTime()) ? d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : val;
+      }
+      
+      val = val !== undefined && val !== null ? val.toString() : "";
+      return `"${val.replace(/"/g, '""')}"`;
+    });
+    csvContent += line.join(";") + "\n";
+  });
+  
+  // Download do arquivo
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  
+  const dateStr = new Date().toISOString().slice(0,10);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Relatorio_Emendas_CMS_${dateStr}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  logActionOnServer("log_export_csv", `Exportou relatório de emendas em CSV com ${filtered.length} registros.`);
+  showAlert("success", "Exportado", "O download do relatório CSV começou automaticamente.");
+}
+
+function copyReportToClipboard() {
+  const filtered = getFilteredReportData();
+  if (filtered.length === 0) {
+    showAlert("error", "Sem Dados", "Não há dados para copiar.");
+    return;
+  }
+  
+  const selectedCols = [];
+  const checkboxes = document.querySelectorAll('#report-generator-form input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    if (cb.checked) {
+      selectedCols.push({
+        id: cb.getAttribute("data-col"),
+        label: cb.parentElement.textContent.trim()
+      });
+    }
+  });
+  
+  if (selectedCols.length === 0) return;
+  
+  // Separador de tabulação para colar direto em Excel/Sheets
+  let textContent = selectedCols.map(col => col.label).join("\t") + "\n";
+  
+  filtered.forEach(row => {
+    const line = selectedCols.map(col => {
+      let val = row[col.id];
+      if (col.id === "Valor") {
+        val = (parseFloat(val) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else if (col.id === "Data de Envio" && val) {
+        const d = new Date(val);
+        val = !isNaN(d.getTime()) ? d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : val;
+      }
+      return val !== undefined && val !== null ? val.toString().replace(/\t/g, ' ') : "";
+    });
+    textContent += line.join("\t") + "\n";
+  });
+  
+  navigator.clipboard.writeText(textContent).then(() => {
+    showAlert("success", "Copiado", "Os dados filtrados foram copiados para a área de transferência!");
+  });
+}
+

@@ -58,6 +58,11 @@
           <span class="login-btn-text">Entrar no Portal</span>
           <span class="login-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Validando...</span>
         </button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="#" id="link-forgot-password" style="font-size: 0.85rem; color: var(--cms-blue); text-decoration: none; font-weight: 600;">
+            <i class="fa-solid fa-circle-info"></i> Esqueci minha chave de acesso
+          </a>
+        </div>
       </form>
     </div>
   </div>
@@ -66,32 +71,64 @@
   <div id="force-password-overlay" class="login-overlay hidden">
     <div class="login-card" style="border: 2px solid var(--cms-yellow);">
       <div class="stripe" style="background: var(--cms-yellow);"></div>
-      <div class="login-header" style="margin-top: 15px;">
-        <div class="login-logo-icon" style="background: var(--cms-yellow); color: var(--cms-navy);"><i class="fa-solid fa-shield-halved"></i></div>
-        <h2>Primeiro Acesso Detectado</h2>
-        <p>Para sua segurança, você deve redefinir sua Chave de Acesso inicial. A nova chave deve começar com o seu primeiro nome em maiúsculo (ex: JOEL123).</p>
-      </div>
-      <form id="force-password-form">
-        <div class="form-group">
-          <label for="force-new-password">Nova Chave de Acesso *</label>
-          <input type="text" id="force-new-password" placeholder="Ex: JOEL123" required>
+      
+      <!-- Formulário de Redefinição -->
+      <form id="force-password-form" style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="login-header" style="margin-top: 15px;">
+          <div class="login-logo-icon" style="background: var(--cms-yellow); color: var(--cms-navy);"><i class="fa-solid fa-shield-halved"></i></div>
+          <h2>Primeiro Acesso Detectado</h2>
+          <p>Para sua segurança, você deve redefinir sua Chave de Acesso inicial. O início da sua chave é fixo com o seu primeiro nome.</p>
         </div>
-        <div class="form-group" style="margin-top: 12px;">
-          <label for="force-confirm-password">Confirmar Nova Chave *</label>
-          <input type="text" id="force-confirm-password" placeholder="Repita a nova chave" required>
-          <span class="error-msg" id="force-password-error-msg">As chaves de acesso não coincidem.</span>
+        
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Nova Chave de Acesso *</label>
+          <div style="display: flex; align-items: stretch; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); overflow: hidden; font-family: monospace; font-size: 1.25rem;">
+            <span id="force-prefix" style="background: var(--cms-off); color: var(--cms-navy); padding: 12px 18px; font-weight: 700; border-right: 1px solid var(--cms-border); display: flex; align-items: center; user-select: none;">NOME</span>
+            <input type="text" id="force-suffix" placeholder="DIGITE O RESTANTE" required style="border: none; outline: none; padding: 12px; font-weight: 600; text-transform: uppercase; width: 100%; font-size: 1.2rem; letter-spacing: 2px;">
+          </div>
+          <p style="font-size: 0.8rem; color: var(--cms-muted); margin-top: 6px; line-height: 1.4;">
+            ⚠️ Apenas digite letras ou números. O sistema converterá para <strong>MAIÚSCULO</strong> e sem acentos automaticamente.
+          </p>
+          
+          <!-- Visualização em Destaque da Senha Final -->
+          <div id="force-password-preview-box" style="margin-top: 15px; background: rgba(13, 46, 90, 0.05); border: 1px dashed var(--cms-navy); border-radius: var(--border-radius-sm); padding: 10px; text-align: center; display: none;">
+            <span style="font-size: 0.75rem; color: var(--cms-muted); font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 2px;">Sua chave final será:</span>
+            <strong id="force-password-preview-text" style="font-size: 1.4rem; color: var(--cms-navy); font-family: monospace; letter-spacing: 2px;">NOME1234</strong>
+          </div>
+          
+          <span class="error-msg" id="force-password-error-msg" style="display: none; margin-top: 10px;">Erro...</span>
         </div>
-        <button type="submit" class="submit-btn" id="btn-force-submit" style="width: 100%; margin-top: 20px; background: var(--cms-green);">
+        
+        <button type="submit" class="submit-btn" id="btn-force-submit" style="width: 100%; margin-top: 15px; background: var(--cms-green);">
           <span class="btn-text">Salvar Nova Chave</span>
           <span class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Salvando...</span>
         </button>
       </form>
+
+      <!-- Sucesso ao Alterar Senha (inicialmente oculto) -->
+      <div id="force-password-success" class="hidden" style="text-align: center; padding: 15px 0;">
+        <div style="color: var(--cms-green); font-size: 3.5rem; margin-bottom: 15px;"><i class="fa-solid fa-circle-check"></i></div>
+        <h3 style="color: var(--cms-navy); font-size: 1.4rem; margin-bottom: 10px; font-weight: 700;">Chave Salva com Sucesso!</h3>
+        <p style="color: var(--cms-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4;">Anote ou copie sua nova chave de acesso. Ela é em <strong>MAIÚSCULO</strong> e sem acentos:</p>
+        
+        <div style="background: var(--cms-off); border: 2px dashed var(--cms-green); border-radius: var(--border-radius-md); padding: 15px; margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <span style="font-size: 0.75rem; color: var(--cms-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Sua Chave de Acesso é:</span>
+          <span id="display-final-password" style="font-size: 2rem; font-weight: 900; color: var(--cms-navy); letter-spacing: 2px; font-family: monospace;">JOEL1234</span>
+          <button type="button" id="btn-copy-new-key" class="nav-btn" style="background: var(--cms-blue); color: white; border: none; font-size: 0.8rem; padding: 6px 12px; display: flex; align-items: center; gap: 6px; margin-top: 5px; cursor: pointer;">
+            <i class="fa-solid fa-copy"></i> Copiar Chave
+          </button>
+        </div>
+        
+        <button type="button" id="btn-force-continue" class="submit-btn" style="width: 100%; background: var(--cms-navy);">
+          Ir para o Painel de Controle
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Modal Geral de Alteração de Chave (Topbar) -->
   <div id="change-password-modal" class="modal hidden">
-    <div class="modal-card" style="max-width: 400px;">
+    <div class="modal-card" style="max-width: 420px;">
       <div class="stripe"></div>
       <div class="modal-header">
         <h2>Alterar Chave de Acesso</h2>
@@ -100,13 +137,22 @@
       <form id="general-change-pwd-form">
         <div style="padding: 25px; display: flex; flex-direction: column; gap: 15px;">
           <div class="form-group">
-            <label for="general-new-password">Nova Chave de Acesso *</label>
-            <input type="text" id="general-new-password" placeholder="Ex: JOEL2026" required>
-          </div>
-          <div class="form-group">
-            <label for="general-confirm-password">Confirmar Nova Chave *</label>
-            <input type="text" id="general-confirm-password" placeholder="Repita a nova chave" required>
-            <span class="error-msg" id="general-pwd-error-msg">As chaves não coincidem.</span>
+            <label>Nova Chave de Acesso *</label>
+            <div style="display: flex; align-items: stretch; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); overflow: hidden; font-family: monospace; font-size: 1.25rem;">
+              <span id="general-prefix" style="background: var(--cms-off); color: var(--cms-navy); padding: 12px 18px; font-weight: 700; border-right: 1px solid var(--cms-border); display: flex; align-items: center; user-select: none;">NOME</span>
+              <input type="text" id="general-suffix" placeholder="DIGITE O RESTANTE" required style="border: none; outline: none; padding: 12px; font-weight: 600; text-transform: uppercase; width: 100%; font-size: 1.2rem; letter-spacing: 2px;">
+            </div>
+            <p style="font-size: 0.8rem; color: var(--cms-muted); margin-top: 6px; line-height: 1.4;">
+              ⚠️ O sistema converterá para <strong>MAIÚSCULO</strong> e sem acentos automaticamente.
+            </p>
+            
+            <!-- Visualização em Destaque da Senha Final Geral -->
+            <div id="general-password-preview-box" style="margin-top: 15px; background: rgba(13, 46, 90, 0.05); border: 1px dashed var(--cms-navy); border-radius: var(--border-radius-sm); padding: 10px; text-align: center; display: none;">
+              <span style="font-size: 0.75rem; color: var(--cms-muted); font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 2px;">Sua chave final será:</span>
+              <strong id="general-password-preview-text" style="font-size: 1.4rem; color: var(--cms-navy); font-family: monospace; letter-spacing: 2px;">NOME1234</strong>
+            </div>
+            
+            <span class="error-msg" id="general-pwd-error-msg" style="display: none; margin-top: 10px;">Erro...</span>
           </div>
         </div>
         <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
@@ -114,6 +160,30 @@
           <button type="submit" class="submit-btn" id="btn-save-pwd-modal" style="padding: 8px 24px;">Atualizar Chave</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Esqueci Senha -->
+  <div id="forgot-password-modal" class="modal hidden">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="stripe" style="background: var(--cms-blue);"></div>
+      <div class="modal-header">
+        <h2>Esqueceu sua Chave?</h2>
+        <button type="button" class="close-modal-btn" id="btn-close-forgot-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 25px; text-align: center; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+        <div style="font-size: 3rem; color: var(--cms-blue);"><i class="fa-solid fa-building-shield"></i></div>
+        <h3 style="color: var(--cms-navy); font-weight: 700; margin: 0;">Contato Administrativo</h3>
+        <p style="color: var(--cms-ink); font-size: 0.95rem; line-height: 1.6; margin: 0;">
+          Para recuperar, redefinir ou solicitar uma nova chave de acesso, entre em contato diretamente com a <strong>Secretaria Executiva do CMS</strong>.
+        </p>
+        <p style="color: var(--cms-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">
+          A Secretaria Executiva poderá verificar sua identidade e atualizar sua credencial no sistema de chaves oficiais.
+        </p>
+      </div>
+      <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: center;">
+        <button type="button" class="submit-btn" id="btn-ok-forgot-modal" style="width: 100%; max-width: 150px; background: var(--cms-navy); cursor: pointer;">Entendido</button>
+      </div>
     </div>
   </div>
 
@@ -263,6 +333,9 @@
       <a href="#" class="nav-tab-link" data-tab="tab-duvidas" id="btn-tab-duvidas">
         <i class="fa-solid fa-circle-question"></i> Dúvidas Plenárias
       </a>
+      <a href="#" class="nav-tab-link" data-tab="tab-relatorios" id="btn-tab-relatorios">
+        <i class="fa-solid fa-file-invoice-dollar"></i> Relatórios
+      </a>
     </div>
     <!-- Área do Usuário Logado -->
     <div class="user-status-area" id="user-status-area">
@@ -410,6 +483,47 @@
     
     <!-- ABA 2: PAINEL DE CONTROLE / DASHBOARD -->
     <section id="tab-dashboard" class="tab-content active">
+      
+      <!-- MÓDULO DE DÚVIDAS PLENÁRIAS (SEÇÃO RECOLHÍVEL NO PAINEL PRINCIPAL) -->
+      <div class="card-upload" id="dashboard-duvidas-section" style="margin-bottom: 24px; padding: 20px;">
+        <div class="card-upload-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 0; padding-bottom: 0;" id="toggle-dashboard-duvidas">
+          <div>
+            <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--cms-navy); display: flex; align-items: center; gap: 8px; margin: 0;">
+              <i class="fa-solid fa-comments"></i> Dúvidas Plenárias
+            </h3>
+            <p style="color: var(--cms-muted); font-size: 0.85rem; margin: 3px 0 0 0;">Esclarecimentos e questionamentos dos conselheiros</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="doubt-stats-pill" style="font-size: 0.85rem; background: var(--cms-off); border: 1px solid var(--cms-border); padding: 5px 12px; border-radius: 20px; font-weight: 600;">
+              📨 <span id="doubt-stat-enviadas">0</span> | ⏳ <span id="doubt-stat-pendentes" style="color: var(--cms-red);">0</span> | ✅ <span id="doubt-stat-respondidas" style="color: var(--cms-green);">0</span>
+            </div>
+            <i class="fa-solid fa-chevron-up" id="arrow-dashboard-duvidas" style="transition: transform 0.3s; color: var(--cms-navy); font-size: 1.1rem;"></i>
+          </div>
+        </div>
+        
+        <div id="content-dashboard-duvidas" style="margin-top: 20px; overflow: hidden; transition: max-height 0.3s ease-out;">
+          
+          <!-- Painel Especial da Regulação (Apenas visível para perfil Administrador/Regulação) -->
+          <div id="regulacao-alert-duvidas" class="hidden" style="background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.15); border-left: 4px solid var(--cms-red); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 20px;">
+            <h4 style="margin: 0 0 10px 0; color: #B91C1C; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-bell"></i> DÚVIDAS REQUERENDO ATENÇÃO (REGULAÇÃO)
+            </h4>
+            <div id="regulacao-pendentes-list" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Dúvidas pendentes da regulação com resposta inline inseridas via JS -->
+            </div>
+          </div>
+
+          <div id="dashboard-duvidas-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+            <!-- Lista geral de dúvidas inserida via JS -->
+          </div>
+          
+          <div id="no-dashboard-duvidas-msg" class="no-data-card hidden" style="padding: 20px; background: transparent; border: none; box-shadow: none;">
+            <i class="fa-solid fa-comment-slash" style="font-size: 2rem;"></i>
+            <h4 style="margin-top: 10px;">Nenhuma dúvida cadastrada no momento</h4>
+          </div>
+        </div>
+      </div>
+
       <div class="oport-numbers">
         <div class="oport-card blue">
           <div class="oport-value" id="stat-total-count">0</div>
@@ -530,7 +644,185 @@
         <div id="no-duvidas-msg" class="no-data-card hidden">
           <i class="fa-solid fa-comments"></i>
           <h3>Nenhuma dúvida cadastrada</h3>
-          <p>Seja o primeiro a enviar uma dúvida plenária clicando no botão acima.</p>
+                  <p>Seja o primeiro a enviar uma dúvida plenária clicando no botão acima.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- ABA 4: RELATÓRIOS (TÉCNICOS E GERADOS) -->
+    <section id="tab-relatorios" class="tab-content">
+      <div style="margin-bottom: 25px;">
+        <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--cms-navy); margin: 0;">Módulo de Relatórios</h2>
+        <p style="color: var(--cms-muted); font-size: 0.9rem; margin-top: 3px;">Consulte os relatórios técnicos oficiais ou gere planilhas personalizadas das emendas cadastradas.</p>
+      </div>
+
+      <!-- Sub-Abas de Relatórios -->
+      <div class="filters-group" style="margin-bottom: 20px; border-bottom: 1px solid var(--cms-border); padding-bottom: 10px; gap: 10px; width: 100%; display: flex;">
+        <button class="nav-btn" id="btn-subtab-tecnicos" style="background: var(--cms-blue); color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
+          <i class="fa-solid fa-file-pdf"></i> Relatórios Técnicos
+        </button>
+        <button class="nav-btn" id="btn-subtab-gerador" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
+          <i class="fa-solid fa-gears"></i> Gerador de Relatórios
+        </button>
+      </div>
+
+      <!-- SUB-ABA 1: RELATÓRIOS TÉCNICOS -->
+      <div id="subtab-tecnicos-content">
+        <div class="card-upload" style="padding: 20px; margin-bottom: 20px;">
+          <h3 style="color: var(--cms-navy); margin-bottom: 15px; font-size: 1.15rem; margin-top: 0; font-family: var(--font-display); font-weight: 700;"><i class="fa-solid fa-folder-open"></i> Análises Técnicas e Relatórios Consolidados</h3>
+          <p style="color: var(--cms-muted); font-size: 0.85rem; margin-bottom: 20px;">Baixe as análises consolidadas e pareceres técnicos oficiais emitidos pela comissão e assessoria técnica do conselho.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;" id="tecnicos-reports-list">
+            <div class="risco-item" style="border: 1px solid var(--cms-border); background: white; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2.2rem; color: #DC2626;"><i class="fa-solid fa-file-pdf"></i></div>
+                <div>
+                  <h4 style="margin: 0; font-size: 1rem; color: var(--cms-navy);">Relatório Consolidado de Emendas Parlamentares - Exercício 2026</h4>
+                  <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: var(--cms-muted);">Emitido em: 20/06/2026 | Tamanho: 420 KB | Formato: PDF</p>
+                </div>
+              </div>
+              <a href="relatorio_consolidado_cms.html" target="_blank" class="nav-btn" style="background: var(--cms-blue); color: white; text-decoration: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--border-radius-sm);">
+                <i class="fa-solid fa-download"></i> Visualizar/Baixar
+              </a>
+            </div>
+
+            <div class="risco-item" style="border: 1px solid var(--cms-border); background: white; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2.2rem; color: #DC2626;"><i class="fa-solid fa-file-pdf"></i></div>
+                <div>
+                  <h4 style="margin: 0; font-size: 1rem; color: var(--cms-navy);">Proposta de Solução e Fluxo do Portal de Emendas</h4>
+                  <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: var(--cms-muted);">Emitido em: 18/06/2026 | Tamanho: 280 KB | Formato: PDF</p>
+                </div>
+              </div>
+              <a href="proposta_solucao_portal_emendas.html" target="_blank" class="nav-btn" style="background: var(--cms-blue); color: white; text-decoration: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--border-radius-sm);">
+                <i class="fa-solid fa-download"></i> Visualizar/Baixar
+              </a>
+            </div>
+
+            <div class="risco-item" style="border: 1px solid var(--cms-border); background: white; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2.2rem; color: #DC2626;"><i class="fa-solid fa-file-pdf"></i></div>
+                <div>
+                  <h4 style="margin: 0; font-size: 1rem; color: var(--cms-navy);">Guia Final de Design System e Usabilidade do Portal v2</h4>
+                  <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: var(--cms-muted);">Emitido em: 19/06/2026 | Tamanho: 680 KB | Formato: PDF</p>
+                </div>
+              </div>
+              <a href="guia_final_design_system_v2.html" target="_blank" class="nav-btn" style="background: var(--cms-blue); color: white; text-decoration: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--border-radius-sm);">
+                <i class="fa-solid fa-download"></i> Visualizar/Baixar
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-ABA 2: GERADOR DE RELATÓRIOS -->
+      <div id="subtab-gerador-content" class="hidden">
+        <div class="card-upload" style="padding: 20px;">
+          <h3 style="color: var(--cms-navy); margin-bottom: 15px; font-size: 1.15rem; margin-top: 0; font-family: var(--font-display); font-weight: 700;"><i class="fa-solid fa-filter"></i> Configurar Filtros e Selecionar Colunas</h3>
+          <p style="color: var(--cms-muted); font-size: 0.85rem; margin-bottom: 20px;">Selecione os critérios desejados e marque quais informações você deseja exportar.</p>
+          
+          <form id="report-generator-form">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+              <!-- Filtros -->
+              <div class="form-group">
+                <label for="rep-filter-entidade">Filtrar por Entidade</label>
+                <select id="rep-filter-entidade" style="width: 100%;">
+                  <option value="">Todas as Entidades</option>
+                  <option value="Hospital Universitário Clemente de Faria">Hospital Clemente de Faria</option>
+                  <option value="Hospital Aroldo Tourinho">Hospital Aroldo Tourinho</option>
+                  <option value="Hospital Dilson Godinho">Hospital Dilson Godinho</option>
+                  <option value="Hospital das Clínicas Doutor Mário Ribeiro da Silveira">Hospital Mário Ribeiro</option>
+                  <option value="Hospital Santa Casa de Montes Claros">Santa Casa de Montes Claros</option>
+                  <option value="Instituto de Pesquisa Yova Rafha (Laboratório Rafhá)">Inst. Yova Rafha</option>
+                  <option value="Outra">Outra</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="rep-filter-tipo">Filtrar por Tipo</label>
+                <select id="rep-filter-tipo" style="width: 100%;">
+                  <option value="">Todos os Tipos</option>
+                  <option value="Estadual">Estadual</option>
+                  <option value="Federal">Federal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="rep-filter-status">Filtrar por Status</label>
+                <select id="rep-filter-status" style="width: 100%;">
+                  <option value="">Todos os Status</option>
+                  <option value="Recebido">Recebido</option>
+                  <option value="Em Análise">Em Análise</option>
+                  <option value="Aprovado">Aprovado</option>
+                  <option value="Devolvido para Correção">Devolvido para Correção</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Seleção de Colunas -->
+            <div style="margin-bottom: 25px; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); padding: 15px; background: var(--cms-off);">
+              <h4 style="margin: 0 0 10px 0; color: var(--cms-navy); font-size: 0.9rem; font-weight: 700;">Selecione as colunas da planilha exportada:</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-data" checked data-col="Data de Envio"> Data de Envio
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-entidade" checked data-col="Entidade"> Entidade
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-numero" checked data-col="Número da Emenda"> Nº Emenda
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-tipo" checked data-col="Tipo"> Tipo
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-parlamentar" checked data-col="Parlamentar / Autor"> Parlamentar / Autor
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-resolucao" checked data-col="Resolução/Documento"> Resolução/Documento
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-valor" checked data-col="Valor"> Valor Repassado
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                  <input type="checkbox" id="col-status" checked data-col="Status"> Status
+                </label>
+              </div>
+            </div>
+
+            <!-- Resumo e Ações -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-top: 1px solid var(--cms-border); padding-top: 20px;">
+              <div style="background: #ECFDF5; border: 1px solid #A7F3D0; padding: 10px 18px; border-radius: var(--border-radius-sm); display: flex; align-items: center; gap: 15px;">
+                <div>
+                  <span style="font-size: 0.75rem; color: #065F46; font-weight: 600; text-transform: uppercase; display: block;">Valor Total das Emendas Selecionadas:</span>
+                  <strong id="rep-summary-total-value" style="font-size: 1.25rem; color: #047857;">R$ 0,00</strong>
+                </div>
+                <div style="border-left: 1px solid #A7F3D0; padding-left: 15px;">
+                  <span style="font-size: 0.75rem; color: #065F46; font-weight: 600; text-transform: uppercase; display: block;">Quantidade:</span>
+                  <strong id="rep-summary-total-count" style="font-size: 1.25rem; color: #047857;">0</strong>
+                </div>
+              </div>
+              
+              <div style="display: flex; gap: 10px;">
+                <button type="button" id="btn-rep-copy" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 10px 18px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: var(--border-radius-sm);">
+                  <i class="fa-solid fa-copy"></i> Copiar Dados
+                </button>
+                <button type="submit" id="btn-rep-download" class="submit-btn" style="background: var(--cms-green); padding: 10px 22px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <i class="fa-solid fa-file-excel"></i> Exportar Planilha (.CSV)
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Tabela de Pré-visualização do Relatório -->
+          <div class="table-wrap" style="margin-top: 25px; min-height: auto; max-height: 300px; overflow-y: auto;">
+            <table class="cms-table" id="report-preview-table" style="font-size: 0.8rem;">
+              <thead id="report-preview-thead">
+                <!-- Inserido dinamicamente -->
+              </thead>
+              <tbody id="report-preview-tbody">
+                <!-- Inserido dinamicamente -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
