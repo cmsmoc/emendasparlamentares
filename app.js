@@ -4,7 +4,7 @@
  * Se mantiver o valor padrão, o aplicativo funcionará no "Modo de Demonstração"
  * utilizando dados salvos localmente no navegador (localStorage).
  */
-const API_URL = "https://script.google.com/macros/s/AKfycbzelLvubXmBmiDd9z7rynQHejNZiY2XdOoQxrXTPLfOFF4ng7m352iWEOA1rECivqioNw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzqIIfNdI44alspqZzh_LKuX8YoZ8pgtdd98bw5AgqLrxgV_GMrwZwg9w-4Nt7ohEpkcA/exec";
 
 // Banco de dados de chaves de demonstração com os 64 conselheiros REAIS do CMS 2026-2029
 const MOCK_KEYS = {
@@ -250,7 +250,7 @@ const btnCloseAnswerModal = document.getElementById("btn-close-answer-modal");
 
 // INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", async () => {
-  clientInfo = await fetchClientInfo();
+  fetchClientInfo().then(info => { clientInfo = info; });
   checkSession();
   initTabs();
   initDragAndDrop();
