@@ -308,6 +308,25 @@
             <label for="edit-objeto">Objeto / Finalidade da Emenda</label>
             <textarea id="edit-objeto" rows="3"></textarea>
           </div>
+
+          <!-- Deliberação Plenária (visível apenas quando status = Aprovada) -->
+          <div class='form-group col-span-2' id='edit-deliberacao-group' style='display:none; background:#ECFDF5; border:1px solid #A7F3D0; border-radius:6px; padding:15px;'>
+            <label style='color:#065F46; display:flex; align-items:center; gap:6px;'><i class='fa-solid fa-gavel'></i> Deliberação Plenária</label>
+            <div style='display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;'>
+              <div class='form-group'>
+                <label for='edit-numero-deliberacao'>Nº da Deliberação</label>
+                <input type='text' id='edit-numero-deliberacao' placeholder='Ex: Deliberação nº 01/2026'>
+              </div>
+              <div class='form-group'>
+                <label for='edit-data-deliberacao'>Data da Reunião</label>
+                <input type='date' id='edit-data-deliberacao'>
+              </div>
+            </div>
+            <div class='form-group' style='margin-top:8px;'>
+              <label for='edit-link-deliberacao'>Link da Deliberação (Google Drive)</label>
+              <input type='url' id='edit-link-deliberacao' placeholder='https://drive.google.com/...'>
+            </div>
+          </div>
         </div>
         <div class="modal-footer" style="padding: 15px 25px; background: var(--cms-off); border-top: 1px solid var(--cms-border); display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="nav-btn" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 8px 16px;" id="btn-cancel-edit">Cancelar</button>
@@ -366,8 +385,8 @@
           <div class="hero-meta-value yellow" id="hero-total-count">0</div>
         </div>
         <div class="hero-meta-item">
-          <div class="hero-meta-label">Conselho Executivo</div>
-          <div class="hero-meta-value">CMSMOC 2.0</div>
+          <div class="hero-meta-label">Exercício Ativo</div>
+          <div class="hero-meta-value">2026</div>
         </div>
       </div>
     </div>
@@ -377,6 +396,9 @@
   <div class="alert-urgente" id="alert-indicador">
     <div class="alert-urgente-icon">⚠️</div>
     <div class="alert-urgente-text">Atenção: <span>O envio do plano de trabalho é obrigatório sob o Art. 18 do Decreto Municipal nº 5.197 para apreciação do conselho.</span></div>
+    <button type='button' id='btn-open-decree-modal' style='background:var(--cms-navy); color:white; border:none; padding:8px 16px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; white-space:nowrap; font-family:var(--font-display); letter-spacing:0.5px; display:flex; align-items:center; gap:6px; flex-shrink:0;'>
+      <i class='fa-solid fa-scale-balanced'></i> Ver Decreto Nº 5197
+    </button>
   </div>
 
   <!-- Container Principal -->
@@ -483,46 +505,6 @@
     
     <!-- ABA 2: PAINEL DE CONTROLE / DASHBOARD -->
     <section id="tab-dashboard" class="tab-content active">
-      
-      <!-- MÓDULO DE DÚVIDAS PLENÁRIAS (SEÇÃO RECOLHÍVEL NO PAINEL PRINCIPAL) -->
-      <div class="card-upload" id="dashboard-duvidas-section" style="margin-bottom: 24px; padding: 20px;">
-        <div class="card-upload-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 0; padding-bottom: 0;" id="toggle-dashboard-duvidas">
-          <div>
-            <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--cms-navy); display: flex; align-items: center; gap: 8px; margin: 0;">
-              <i class="fa-solid fa-comments"></i> Dúvidas Plenárias
-            </h3>
-            <p style="color: var(--cms-muted); font-size: 0.85rem; margin: 3px 0 0 0;">Esclarecimentos e questionamentos dos conselheiros</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="doubt-stats-pill" style="font-size: 0.85rem; background: var(--cms-off); border: 1px solid var(--cms-border); padding: 5px 12px; border-radius: 20px; font-weight: 600;">
-              📨 <span id="doubt-stat-enviadas">0</span> | ⏳ <span id="doubt-stat-pendentes" style="color: var(--cms-red);">0</span> | ✅ <span id="doubt-stat-respondidas" style="color: var(--cms-green);">0</span>
-            </div>
-            <i class="fa-solid fa-chevron-up" id="arrow-dashboard-duvidas" style="transition: transform 0.3s; color: var(--cms-navy); font-size: 1.1rem;"></i>
-          </div>
-        </div>
-        
-        <div id="content-dashboard-duvidas" style="margin-top: 20px; overflow: hidden; transition: max-height 0.3s ease-out;">
-          
-          <!-- Painel Especial da Regulação (Apenas visível para perfil Administrador/Regulação) -->
-          <div id="regulacao-alert-duvidas" class="hidden" style="background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.15); border-left: 4px solid var(--cms-red); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 20px;">
-            <h4 style="margin: 0 0 10px 0; color: #B91C1C; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-bell"></i> DÚVIDAS REQUERENDO ATENÇÃO (REGULAÇÃO)
-            </h4>
-            <div id="regulacao-pendentes-list" style="display: flex; flex-direction: column; gap: 12px;">
-              <!-- Dúvidas pendentes da regulação com resposta inline inseridas via JS -->
-            </div>
-          </div>
-
-          <div id="dashboard-duvidas-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
-            <!-- Lista geral de dúvidas inserida via JS -->
-          </div>
-          
-          <div id="no-dashboard-duvidas-msg" class="no-data-card hidden" style="padding: 20px; background: transparent; border: none; box-shadow: none;">
-            <i class="fa-solid fa-comment-slash" style="font-size: 2rem;"></i>
-            <h4 style="margin-top: 10px;">Nenhuma dúvida cadastrada no momento</h4>
-          </div>
-        </div>
-      </div>
 
       <div class="oport-numbers">
         <div class="oport-card blue">
@@ -535,11 +517,11 @@
         </div>
         <div class="oport-card navy">
           <div class="oport-value" id="stat-pending-count" style="color: var(--cms-navy);">0</div>
-          <div class="oport-label">Em Análise / Recebidos</div>
+          <div class="oport-label">Pendentes Aprovação</div>
         </div>
         <div class="oport-card yellow">
           <div class="oport-value" id="stat-approved-count" style="color: var(--cms-green);">0</div>
-          <div class="oport-label">Propostas Aprovadas</div>
+          <div class="oport-label">Aprovadas Plenário</div>
         </div>
       </div>
 
@@ -562,13 +544,28 @@
           </select>
           <select id="filter-status">
             <option value="">Todos os Status</option>
-            <option value="Recebido">Recebido</option>
-            <option value="Em Análise">Em Análise</option>
-            <option value="Aprovado">Aprovado</option>
-            <option value="Devolvido para Correção">Devolvido p/ Correção</option>
+            <option value="Pendente Aprovação">Pendente Aprovação</option>
+            <option value="Aprovada">Aprovada em Plenário</option>
           </select>
+          <div style="position: relative;">
+            <button id="btn-toggle-columns" class="refresh-btn" title="Ocultar/Exibir Colunas">
+              <i class="fa-solid fa-columns"></i>
+            </button>
+            <div id="columns-dropdown" class="hidden" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); padding: 10px; z-index: 10; width: 180px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 5px;">
+              <h4 style="font-size: 0.85rem; margin-bottom: 8px; color: var(--cms-navy);">Colunas</h4>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-entidade" checked> Entidade</label>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-num" checked> Número</label>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-parl" checked> Parlamentar</label>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-val" checked> Valor</label>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-status" checked> Status</label>
+              <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;"><input type="checkbox" class="toggle-col" data-col="col-acoes" checked> Ações</label>
+            </div>
+          </div>
           <button id="btn-sync-database" class="refresh-btn hidden" title="Sincronizar Conselheiros com Banco de Dados Oficial" style="background: #ECFDF5; border-color: #A7F3D0; color: #065F46;">
             <i class="fa-solid fa-cloud-arrow-down"></i>
+          </button>
+          <button id="btn-export-csv" class="refresh-btn" title="Exportar dados filtrados" style="background: #E0F2FE; border-color: #BAE6FD; color: #0284C7;">
+            <i class="fa-solid fa-file-csv"></i>
           </button>
           <button id="btn-refresh" class="refresh-btn" title="Atualizar dados">
             <i class="fa-solid fa-rotate"></i>
@@ -583,6 +580,17 @@
           <p>Carregando emendas cadastradas do Google Sheets...</p>
         </div>
         <table class="cms-table" id="emendas-table">
+          <colgroup>
+            <col class="col-data">
+            <col class="col-entidade">
+            <col class="col-num">
+            <col class="col-tipo">
+            <col class="col-parl">
+            <col class="col-res">
+            <col class="col-val">
+            <col class="col-status">
+            <col class="col-acoes">
+          </colgroup>
           <thead>
             <tr>
               <th>Data de Envio</th>
@@ -590,7 +598,7 @@
               <th>Nº Emenda</th>
               <th>Tipo</th>
               <th>Parlamentar / Autor</th>
-              <th>Resolução/Portaria</th>
+              <th title="Resolução/Portaria">Resol./Portaria</th>
               <th>Valor Repassado</th>
               <th>Status</th>
               <th>Ações</th>
@@ -658,7 +666,10 @@
 
       <!-- Sub-Abas de Relatórios -->
       <div class="filters-group" style="margin-bottom: 20px; border-bottom: 1px solid var(--cms-border); padding-bottom: 10px; gap: 10px; width: 100%; display: flex;">
-        <button class="nav-btn" id="btn-subtab-tecnicos" style="background: var(--cms-blue); color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
+        <button class="nav-btn active-subtab" id="btn-subtab-dinamico" style="background: var(--cms-blue); color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
+          <i class="fa-solid fa-chart-pie"></i> Painel Dinâmico
+        </button>
+        <button class="nav-btn" id="btn-subtab-tecnicos" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
           <i class="fa-solid fa-file-pdf"></i> Relatórios Técnicos
         </button>
         <button class="nav-btn" id="btn-subtab-gerador" style="background: var(--cms-white); color: var(--cms-navy); border: 1px solid var(--cms-border); padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: var(--border-radius-sm);">
@@ -666,8 +677,19 @@
         </button>
       </div>
 
+      <!-- SUB-ABA NOVO: PAINEL DINÂMICO -->
+      <div id="subtab-dinamico-content">
+        <div class="card-upload" style="padding: 20px; margin-bottom: 20px;">
+          <h3 style="color: var(--cms-navy); margin-bottom: 15px; font-size: 1.15rem; margin-top: 0; font-family: var(--font-display); font-weight: 700;"><i class="fa-solid fa-chart-pie"></i> Painel Gerencial</h3>
+          <p style="color: var(--cms-muted); font-size: 0.85rem; margin-bottom: 20px;">Visão sumarizada das propostas de emendas parlamentares.</p>
+          <div id="dynamic-reports-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+             <!-- Inserido via JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- SUB-ABA 1: RELATÓRIOS TÉCNICOS -->
-      <div id="subtab-tecnicos-content">
+      <div id="subtab-tecnicos-content" class="hidden">
         <div class="card-upload" style="padding: 20px; margin-bottom: 20px;">
           <h3 style="color: var(--cms-navy); margin-bottom: 15px; font-size: 1.15rem; margin-top: 0; font-family: var(--font-display); font-weight: 700;"><i class="fa-solid fa-folder-open"></i> Análises Técnicas e Relatórios Consolidados</h3>
           <p style="color: var(--cms-muted); font-size: 0.85rem; margin-bottom: 20px;">Baixe as análises consolidadas e pareceres técnicos oficiais emitidos pela comissão e assessoria técnica do conselho.</p>
@@ -833,6 +855,54 @@
   <footer>
     CMS Montes Claros — Gestão de Emendas Parlamentares — 2026
   </footer>
+
+  <!-- Modal de Notificações - Dúvidas Pendentes -->
+  <div id='notification-modal' class='modal hidden'>
+    <div class='modal-card' style='max-width:680px;'>
+      <div class='stripe' style='background: linear-gradient(90deg, #DC2626 0%, #F59E0B 100%);'></div>
+      <div class='modal-header' style='background:#B91C1C; border-bottom-color:#F59E0B;'>
+        <h2><i class='fa-solid fa-bell'></i> Dúvidas Aguardando Resposta</h2>
+        <button type='button' class='close-modal-btn' id='btn-close-notification-modal'><i class='fa-solid fa-xmark'></i></button>
+      </div>
+      <div style='padding:20px; max-height:65vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px;' id='notification-doubts-list'></div>
+      <div style='padding:15px 25px; background:var(--cms-off); border-top:1px solid var(--cms-border); display:flex; justify-content:space-between; align-items:center;'>
+        <span style='font-size:0.8rem; color:var(--cms-muted);'>Dúvidas aguardando esclarecimento oficial.</span>
+        <button type='button' class='submit-btn' id='btn-go-to-doubts' style='padding:8px 20px; font-size:0.8rem; background:var(--cms-navy);'><i class='fa-solid fa-arrow-right'></i> Ver Todas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Decreto 5197/2026 -->
+  <div id='decree-modal' class='modal hidden'>
+    <div class='modal-card' style='max-width:780px;'>
+      <div class='stripe'></div>
+      <div class='modal-header'>
+        <h2><i class='fa-solid fa-scale-balanced'></i> Decreto Municipal Nº 5.197/2026</h2>
+        <button type='button' class='close-modal-btn' id='btn-close-decree-modal'><i class='fa-solid fa-xmark'></i></button>
+      </div>
+      <div style='display:grid; grid-template-columns:5fr 7fr;'>
+        <div style='background:var(--cms-navy); color:white; padding:35px; display:flex; flex-direction:column; gap:20px; justify-content:space-between;'>
+          <div>
+            <span style='font-family:var(--font-display); font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--cms-yellow); display:block; margin-bottom:15px;'>Decreto Municipal Nº 5197/2026</span>
+            <h3 style='font-family:var(--font-display); font-weight:900; font-size:1.8rem; line-height:1.1; text-transform:uppercase; color:white;'>Controle<br>Social nas<br>Emendas<br>da Saúde.</h3>
+          </div>
+          <a href='https://drive.google.com/file/d/1DejtjISrrMikXsKnUjQUN0mSJ8YoSfXE/view?usp=sharing' target='_blank' style='display:inline-flex; align-items:center; gap:8px; text-decoration:none; padding:12px 20px; background:var(--cms-yellow); color:var(--cms-navy); font-size:0.85rem; font-weight:700; border-radius:6px; font-family:var(--font-display); letter-spacing:0.5px; width:fit-content;'>
+            <i class='fa-solid fa-file-pdf'></i> Abrir Decreto Completo
+          </a>
+        </div>
+        <div style='padding:30px; display:flex; flex-direction:column; gap:20px; justify-content:center;'>
+          <div style='border-left:4px solid var(--cms-blue); padding-left:16px;'>
+            <span style='font-family:var(--font-display); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--cms-muted); display:block; margin-bottom:8px;'>Art. 14, Inciso XVI — Transparência</span>
+            <p style='font-size:0.88rem; color:var(--cms-ink); line-height:1.65;'>Para cada emenda parlamentar destinada ao Município, o Portal de Emendas Parlamentares deverá conter a indicação de existência ou não de <strong>aprovação prévia pelo Conselho Municipal de Saúde</strong>, quando a emenda se destinar a ações e serviços públicos de saúde.</p>
+          </div>
+          <div style='border-left:4px solid var(--cms-green); padding-left:16px;'>
+            <span style='font-family:var(--font-display); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--cms-muted); display:block; margin-bottom:8px;'>Art. 18 — Condicionante Legal</span>
+            <p style='font-size:0.88rem; color:var(--cms-ink); line-height:1.65;'>A aplicação de recursos de emendas parlamentares em ações e serviços públicos de saúde fica <strong>condicionada à aprovação prévia pelo Conselho Municipal de Saúde</strong> e à sua inserção no Plano Municipal de Saúde e na Programação Anual de Saúde.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="app.js"></script>

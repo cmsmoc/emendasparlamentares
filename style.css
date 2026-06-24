@@ -21,6 +21,14 @@
   --border-radius-lg: 12px;
 }
 
+/* TASK 10 - Tema Visual Regulação */
+body.theme-regulacao {
+  --cms-blue: #0056b3;
+  --cms-navy: #003366;
+  --cms-yellow: #FFC107;
+  --cms-green: #28a745;
+}
+
 /* BASE RESET */
 * {
   box-sizing: border-box;
@@ -236,7 +244,8 @@ body {
   padding: 16px 48px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
   color: var(--cms-navy);
 }
 
@@ -259,7 +268,7 @@ body {
 
 /* CONTAINER */
 .container {
-  max-width: 1140px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 40px 24px;
 }
@@ -675,7 +684,7 @@ body {
 
 .oport-value {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 26px; /* Task 8: maior destaque */
   font-weight: 900;
   color: var(--cms-navy);
   line-height: 1.1;
@@ -684,6 +693,7 @@ body {
 
 .oport-value.yellow {
   color: var(--cms-green);
+  font-size: 20px; /* Valor monetário: ligeiramente menor para não quebrar */
 }
 
 .oport-label {
@@ -786,12 +796,21 @@ body {
 
 /* TABLES (cms-table V2) */
 .table-wrap {
-  overflow-x: auto;
+  overflow-x: visible;
   margin-bottom: 28px;
   width: 100%;
   position: relative;
   min-height: 200px;
 }
+
+/* Task 1: células com texto longo — wrap natural */
+.cms-table td.cell-entidade,
+.cms-table td.cell-parlamentar,
+.cms-table td.cell-resolucao {
+  word-break: break-word;
+  white-space: normal;
+}
+
 
 .loading-overlay {
   position: absolute;
@@ -819,6 +838,7 @@ body {
 
 .cms-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
   background: var(--cms-white);

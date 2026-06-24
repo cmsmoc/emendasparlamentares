@@ -148,6 +148,7 @@ const MOCK_DATA_DUVIDAS = [
 
 // Estado global da aplicação
 let emendasData = [];
+let currentFilteredData = [];
 let duvidasData = [];
 let currentUser = null; // { chave, usuario, perfil }
 let tempUser = null; // Guardar dados durante forçar senha
@@ -217,6 +218,7 @@ const searchInput = document.getElementById("search-input");
 const filterEntidade = document.getElementById("filter-entidade");
 const filterStatus = document.getElementById("filter-status");
 const btnRefresh = document.getElementById("btn-refresh");
+const btnExportCsv = document.getElementById("btn-export-csv");
 const btnSyncDatabase = document.getElementById("btn-sync-database");
 
 // Elementos Estatísticas Dashboard & Hero
@@ -258,6 +260,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initEditModal();
   initPasswordModals();
   initDoubtModals();
+  initColumnToggle();
   
   loginForm.addEventListener("submit", handleLoginSubmit);
   btnLogout.addEventListener("click", handleLogout);
@@ -283,6 +286,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   filterEntidade.addEventListener("change", filterData);
   filterStatus.addEventListener("change", filterData);
   btnRefresh.addEventListener("click", () => loadDashboardData(true));
+  if (btnExportCsv) {
+    btnExportCsv.addEventListener("click", exportFilteredDataToCSV);
+  }
   
   if (btnSyncDatabase) {
     btnSyncDatabase.addEventListener("click", triggerDatabaseSync);
@@ -300,6 +306,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       .then(() => console.log("Service Worker ativo."))
       .catch(err => console.warn("Service Worker falhou:", err));
   }
+  
+  // Task 11: Bindings do modal Decreto 5197
+  const btnOpenDecree = document.getElementById('btn-open-decree-modal');
+  const btnCloseDecree = document.getElementById('btn-close-decree-modal');
+  if (btnOpenDecree) btnOpenDecree.addEventListener('click', () => document.getElementById('decree-modal').classList.remove('hidden'));
+  if (btnCloseDecree) btnCloseDecree.addEventListener('click', () => document.getElementById('decree-modal').classList.add('hidden'));
+  
+  // Task 7: Bindings do modal de Notificações
+  const btnCloseNotif = document.getElementById('btn-close-notification-modal');
+  const btnGoToDoubts = document.getElementById('btn-go-to-doubts');
+  if (btnCloseNotif) btnCloseNotif.addEventListener('click', () => document.getElementById('notification-modal').classList.add('hidden'));
+  if (btnGoToDoubts) btnGoToDoubts.addEventListener('click', () => {
+    document.getElementById('notification-modal').classList.add('hidden');
+    document.querySelectorAll('.nav-tab-link').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const btnDuvidas = document.getElementById('btn-tab-duvidas');
+    const tabDuvidas = document.getElementById('tab-duvidas');
+    if (btnDuvidas) btnDuvidas.classList.add('active');
+    if (tabDuvidas) tabDuvidas.classList.add('active');
+    renderDoubtBoard();
+  });
 });
 
 // CAPTURA DE INFORMAÇÕES DE REDE
@@ -343,7 +370,29 @@ function checkSession() {
 function applyUserPermissions() {
   if (!currentUser) return;
   
-  userDisplayName.textContent = `${currentUser.usuario} (${currentUser.perfil})`;
+  if (currentUser.perfil === "Administrador" || (currentUser.usuario && currentUser.usuario.includes("Regulação"))) {
+    document.body.classList.add("theme-regulacao");
+  } else {
+    document.body.classList.remove("theme-regulacao");
+  }
+
+  // Task 6: Exibir nome em MAIÚSCULO com segmento/entidade abaixo
+  const nomeCompleto = currentUser.usuario || "";
+  // Extrai o nome antes do parêntesis e a entidade/segmento entre parêntesis
+  const nomeMatch = nomeCompleto.match(/^([^(]+)(?:\(([^)]+)\))?/);
+  const nomePrincipal = nomeMatch ? nomeMatch[1].trim().toUpperCase() : nomeCompleto.toUpperCase();
+  const segmentoEntidade = nomeMatch && nomeMatch[2] ? nomeMatch[2].trim() : "";
+  const perfilTexto = currentUser.perfil || "Usuário";
+
+  const userDisplayEl = document.getElementById("user-display-name");
+  if (userDisplayEl) {
+    userDisplayEl.innerHTML = `
+      <span style="display:flex; flex-direction:column; line-height:1.2;">
+        <strong style="font-size:0.82rem; letter-spacing:0.5px;">${nomePrincipal}</strong>
+        ${segmentoEntidade ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.55); font-weight:400;">${segmentoEntidade} · ${perfilTexto}</span>` : `<span style="font-size:0.68rem; color:rgba(255,255,255,0.55);">${perfilTexto}</span>`}
+      </span>
+    `;
+  }
   
   const uploadTab = document.getElementById("btn-tab-upload");
   
@@ -1052,6 +1101,19 @@ function openEditModal(numeroEmenda) {
   editValor.value = row["Valor"] || 0;
   editObjeto.value = row["Objeto/Finalidade"] || "";
   
+  // Task 3: Mostrar/ocultar seção de deliberação
+  const deliberacaoGroup = document.getElementById('edit-deliberacao-group');
+  if (deliberacaoGroup) {
+    const isAprovada = ['Aprovado','Aprovada','Aprovado em Plenário'].includes(row['Status'] || '');
+    deliberacaoGroup.style.display = isAprovada ? 'block' : 'none';
+    const numDelib = document.getElementById('edit-numero-deliberacao');
+    const dataDelib = document.getElementById('edit-data-deliberacao');
+    const linkDelib = document.getElementById('edit-link-deliberacao');
+    if (numDelib) numDelib.value = row['Numero_Deliberacao'] || '';
+    if (dataDelib) dataDelib.value = row['Data_Deliberacao'] || '';
+    if (linkDelib) linkDelib.value = row['Link_Deliberacao'] || '';
+  }
+  
   if (row["Tipo"] === "Federal") {
     document.getElementById("edit-tipo-federal").checked = true;
   } else {
@@ -1076,7 +1138,10 @@ async function handleEditFormSubmit(e) {
       parlamentar: editParlamentar.value,
       resolucao: editResolucao.value || "Não informado",
       valor: parseFloat(editValor.value) || 0,
-      objeto: editObjeto.value || "Não informado"
+      objeto: editObjeto.value || "Não informado",
+      numeroDeliberacao: document.getElementById('edit-numero-deliberacao')?.value || '',
+      dataDeliberacao: document.getElementById('edit-data-deliberacao')?.value || '',
+      linkDeliberacao: document.getElementById('edit-link-deliberacao')?.value || ''
     },
     clientIp: clientInfo.ip,
     clientLoc: clientInfo.loc,
@@ -1170,7 +1235,7 @@ async function loadDashboardData(forceRefresh = false) {
 
 function renderDashboard() {
   filterData();
-  renderDashboardDoubtPanel();
+  checkAndShowNotifications();
 }
 
 function filterData() {
@@ -1194,11 +1259,20 @@ function filterData() {
                         entidade.toLowerCase().includes(textSearch);
                         
     const matchesEnt = !entFilter || entidade === entFilter;
-    const matchesStatus = !statusFilter || status === statusFilter;
+    const matchesStatus = !statusFilter || (() => {
+      const s = row['Status'] || '';
+      if (statusFilter === 'Pendente Aprovação') {
+        return ['Recebido','Em Análise','Pendente Aprovação','Não Aprovado em Plenário','Devolvido para Correção'].includes(s);
+      } else if (statusFilter === 'Aprovada') {
+        return ['Aprovado','Aprovada','Aprovado em Plenário'].includes(s);
+      }
+      return s === statusFilter;
+    })();
     
     return matchesText && matchesEnt && matchesStatus;
   });
   
+  currentFilteredData = filtered;
   calculateStats(filtered);
   tableBody.innerHTML = "";
   
@@ -1228,21 +1302,30 @@ function filterData() {
     const status = row["Status"] || "Recebido";
     
     let statusCellContent = "";
+    // Task 2: status alinhado ao fluxo plenário real
+    const STATUS_MAP_DISPLAY = {
+      'Recebido': 'Pendente Aprovação',
+      'Em Análise': 'Pendente Aprovação',
+      'Aprovado': 'Aprovada',
+      'Aprovado em Plenário': 'Aprovada',
+      'Não Aprovado em Plenário': 'Pendente Aprovação',
+      'Devolvido para Correção': 'Pendente Aprovação',
+      'Pendente Aprovação': 'Pendente Aprovação',
+      'Aprovada': 'Aprovada'
+    };
+    const statusDisplay = STATUS_MAP_DISPLAY[status] || status;
     if (isWebmaster) {
       statusCellContent = `
         <select class="status-select-inline" data-numero="${numero}">
-          <option value="Recebido" ${status === "Recebido" ? "selected" : ""}>Recebido</option>
-          <option value="Em Análise" ${status === "Em Análise" ? "selected" : ""}>Em Análise</option>
-          <option value="Aprovado" ${status === "Aprovado" ? "selected" : ""}>Aprovado</option>
-          <option value="Devolvido para Correção" ${status === "Devolvido para Correção" ? "selected" : ""}>Devolvido p/ Corr.</option>
+          <option value='Pendente Aprovação' ${['Recebido','Em Análise','Pendente Aprovação','Não Aprovado em Plenário','Devolvido para Correção'].includes(status) ? 'selected' : ''}>Pendente Aprovação</option>
+          <option value='Aprovada' ${['Aprovado','Aprovado em Plenário','Aprovada'].includes(status) ? 'selected' : ''}>Aprovada ✓ Plenário</option>
         </select>
       `;
     } else {
       let statusClass = "status-todo";
-      if (status === "Em Análise") statusClass = "status-warn";
-      else if (status === "Aprovado") statusClass = "status-ok";
-      else if (status === "Devolvido para Correção") statusClass = "status-elim";
-      statusCellContent = `<span class="badge-status ${statusClass}">${status}</span>`;
+      if (['Recebido','Em Análise','Pendente Aprovação','Não Aprovado em Plenário','Devolvido para Correção'].includes(status)) statusClass = "status-warn";
+      else if (['Aprovado','Aprovado em Plenário','Aprovada'].includes(status)) statusClass = "status-ok";
+      statusCellContent = `<span class="badge-status ${statusClass}">${statusDisplay}</span>`;
     }
     
     const pdfUrl = row["Link do PDF"] || "#";
@@ -1252,6 +1335,12 @@ function filterData() {
       actionCellContent = `<a href="${pdfUrl}" target="_blank" class="action-btn download-trigger" data-numero="${numero}" data-entidade="${row["Entidade"]}"><i class="fa-solid fa-file-pdf"></i> PDF</a>`;
     } else {
       actionCellContent = `<span style="color: var(--cms-muted);">Sem arquivo</span>`;
+    }
+    
+    // Task 3: link da deliberação plenária
+    const linkDelib = row['Link_Deliberacao'] || '';
+    if (linkDelib && linkDelib.startsWith('http')) {
+      actionCellContent = `<a href='${linkDelib}' target='_blank' class='action-btn' style='background:#D1FAE5; color:#065F46; border-color:#A7F3D0;' title='Ver Deliberação Plenária'><i class='fa-solid fa-gavel'></i></a>` + actionCellContent;
     }
     
     if (isAdmin) {
@@ -1267,13 +1356,16 @@ function filterData() {
     
     const valor = parseFloat(row["Valor"]) || 0;
     
+    const entidadeAbrev = row["Entidade"] || "Não informado";
+    const parlamentarStr = row["Parlamentar / Autor"] || "Não informado";
+    const resolucaoStr = row["Resolução/Documento"] || "Não informado";
     tr.innerHTML = `
       <td data-label="Data de Envio">${formattedDate}</td>
-      <td data-label="Entidade Beneficiada" style="font-weight: 600; color: var(--cms-navy);">${row["Entidade"]}</td>
+      <td data-label="Entidade Beneficiada" class="cell-entidade" title="${entidadeAbrev}" style="font-weight: 600; color: var(--cms-navy);">${entidadeAbrev}</td>
       <td data-label="Nº Emenda"><strong>${numero}</strong></td>
       <td data-label="Tipo"><span class="badge-status status-todo" style="background: #E0F2FE; color: #0369A1;">${row["Tipo"]}</span></td>
-      <td data-label="Parlamentar / Autor"><strong>${row["Parlamentar / Autor"] || "Não informado"}</strong></td>
-      <td data-label="Resolução/Portaria">${row["Resolução/Documento"] || "Não informado"}</td>
+      <td data-label="Parlamentar / Autor" class="cell-parlamentar" title="${parlamentarStr}"><strong>${parlamentarStr}</strong></td>
+      <td data-label="Resol./Portaria" class="cell-resolucao" title="${resolucaoStr}">${resolucaoStr}</td>
       <td data-label="Valor Repassado"><strong style="color: var(--cms-blue);">${formatCurrency(valor)}</strong></td>
       <td data-label="Status">${statusCellContent}</td>
       <td data-label="Ações" style="white-space: nowrap; display: flex; gap: 4px; align-items: center;">${actionCellContent}</td>
@@ -1487,6 +1579,11 @@ function renderDoubtBoard() {
   sorted.forEach(row => {
     const card = document.createElement("div");
     card.className = "doubt-card";
+    
+    // Task 7: estilo especial para dúvidas pendentes
+    if (row.Status === 'Pendente') {
+      card.style.cssText = 'border-left: 4px solid #DC2626; background:#FEF2F2;';
+    }
     
     const dDate = new Date(row.Data);
     const formattedDate = !isNaN(dDate.getTime()) ? 
@@ -1727,21 +1824,29 @@ async function deleteEmendaOnServer(numeroEmenda) {
 }
 
 function calculateStats(dataList) {
+  // Task 3: stats do painel usam os dados filtrados (count visível)
+  // mas hero usa o total completo de emendasData para não enganar
+  const globalData = emendasData; // dados completos sem filtro
+
   statTotalCount.textContent = dataList.length;
-  heroTotalCount.textContent = dataList.length;
+  heroTotalCount.textContent = globalData.length; // sempre o total real
   
-  const totalValue = dataList.reduce((acc, row) => acc + (parseFloat(row["Valor"]) || 0), 0);
-  const formattedTotal = formatCurrency(totalValue);
-  statTotalValue.textContent = formattedTotal;
-  heroTotalValue.textContent = formattedTotal;
+  const totalValueFiltered = dataList.reduce((acc, row) => acc + (parseFloat(row["Valor"]) || 0), 0);
+  const totalValueGlobal = globalData.reduce((acc, row) => acc + (parseFloat(row["Valor"]) || 0), 0);
+  
+  statTotalValue.textContent = formatCurrency(totalValueFiltered);
+  heroTotalValue.textContent = formatCurrency(totalValueGlobal); // sempre total real
   
   const pendingCount = dataList.filter(row => {
-    const status = row["Status"] || "Recebido";
-    return status === "Recebido" || status === "Em Análise";
+    const s = row['Status'] || 'Pendente Aprovação';
+    return !['Aprovado','Aprovada','Aprovado em Plenário'].includes(s);
   }).length;
   statPendingCount.textContent = pendingCount;
   
-  const approvedCount = dataList.filter(row => row["Status"] === "Aprovado").length;
+  const approvedCount = dataList.filter(row => {
+    const s = row['Status'] || '';
+    return ['Aprovado','Aprovada','Aprovado em Plenário'].includes(s);
+  }).length;
   statApprovedCount.textContent = approvedCount;
 }
 
@@ -1894,11 +1999,25 @@ function updateDoubtStats() {
   document.getElementById("doubt-stat-enviadas").textContent = total;
   document.getElementById("doubt-stat-pendentes").textContent = pendentes;
   document.getElementById("doubt-stat-respondidas").textContent = respondidas;
+
+  // Task 7: atualizar legendas dos contadores se existirem
+  const legEnviadas = document.getElementById("doubt-legend-enviadas");
+  const legPendentes = document.getElementById("doubt-legend-pendentes");
+  const legRespondidas = document.getElementById("doubt-legend-respondidas");
+  if (legEnviadas) legEnviadas.textContent = total === 1 ? "Dúvida" : "Dúvidas";
+  if (legPendentes) legPendentes.textContent = pendentes === 1 ? "Aguardando" : "Aguardando";
+  if (legRespondidas) legRespondidas.textContent = respondidas === 1 ? "Esclarecida" : "Esclarecidas";
 }
 
 function createDoubtCard(row, isInlineAnswer = false) {
   const card = document.createElement("div");
+  // Task 7: cor de fundo do card por status
+  let cardBgStyle = "";
+  if (row.Status === "Pendente") cardBgStyle = "border-left: 4px solid #F59E0B; background: #FFFBEB;";
+  else if (row.Status === "Esclarecida") cardBgStyle = "border-left: 4px solid #10B981; background: #ECFDF5;";
+  else if (row.Status === "Em Discussão") cardBgStyle = "border-left: 4px solid #3B82F6; background: #EFF6FF;";
   card.className = "doubt-card";
+  if (cardBgStyle) card.setAttribute("style", cardBgStyle);
   
   const dDate = new Date(row.Data);
   const formattedDate = !isNaN(dDate.getTime()) ? 
@@ -2095,6 +2214,77 @@ async function enviarRespostaDuvida(id, resp, status, btnSubmitElement = null) {
   }
 }
 
+// ── MÓDULO DE NOTIFICAÇÕES (DÚVIDAS PENDENTES) ──
+
+function checkAndShowNotifications() {
+  const pendentes = duvidasData.filter(d => d.Status === 'Pendente');
+  const modal = document.getElementById('notification-modal');
+  const list = document.getElementById('notification-doubts-list');
+  if (!modal || !list) return;
+  
+  if (pendentes.length === 0) {
+    modal.classList.add('hidden');
+    return;
+  }
+  
+  list.innerHTML = '';
+  const isAdmin = currentUser && (currentUser.perfil === 'Administrador' || currentUser.perfil === 'Webmaster');
+  
+  pendentes.forEach(row => {
+    const dDate = new Date(row.Data);
+    const formattedDate = !isNaN(dDate.getTime()) ? dDate.toLocaleDateString('pt-BR') : '';
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#FEF2F2; border:1px solid #FECACA; border-left:4px solid #DC2626; border-radius:8px; padding:16px;';
+    
+    const responseForm = isAdmin ? `
+      <div style='margin-top:12px; display:flex; flex-direction:column; gap:8px; border-top:1px solid #FECACA; padding-top:12px;'>
+        <textarea id='notif-resp-${row.ID}' rows='3' placeholder='Escreva o esclarecimento oficial...' style='width:100%; border:1px solid #E5E7EB; border-radius:6px; padding:10px; font-size:0.85rem; resize:vertical;'></textarea>
+        <div style='display:flex; justify-content:flex-end; gap:8px; align-items:center;'>
+          <select id='notif-status-${row.ID}' style='padding:6px 10px; border-radius:6px; border:1px solid #E5E7EB; font-size:0.8rem;'>
+            <option value='Esclarecida'>Esclarecida</option>
+            <option value='Em Discussão'>Em Discussão</option>
+          </select>
+          <button type='button' class='submit-btn btn-notif-salvar' data-id='${row.ID}' style='padding:6px 14px; font-size:0.8rem; background:var(--cms-green); border:none; cursor:pointer; border-radius:4px; color:white; font-family:var(--font-display); letter-spacing:0.5px;'>
+            <i class='fa-solid fa-paper-plane'></i> Responder
+          </button>
+        </div>
+      </div>
+    ` : '';
+    
+    card.innerHTML = `
+      <div style='display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;'>
+        <div style='display:flex; align-items:center; gap:8px;'>
+          <i class='fa-solid fa-circle-user' style='color:#DC2626; font-size:1.1rem;'></i>
+          <strong style='font-size:0.85rem; color:#991B1B;'>${row.AutorExibicao || 'Conselho'}</strong>
+        </div>
+        <span style='font-size:0.75rem; color:#6B7280;'>${formattedDate}</span>
+      </div>
+      <p style='font-size:0.9rem; color:#1F2937; line-height:1.5;'>${row['Dúvida'] || ''}</p>
+      ${responseForm}
+    `;
+    list.appendChild(card);
+  });
+  
+  list.querySelectorAll('.btn-notif-salvar').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const resp = document.getElementById(`notif-resp-${id}`)?.value.trim();
+      const status = document.getElementById(`notif-status-${id}`)?.value || 'Esclarecida';
+      if (!resp) { alert('Por favor, escreva uma resposta antes de enviar.'); return; }
+      e.currentTarget.disabled = true;
+      answerDoubtIdInput.value = id;
+      answerTextInput.value = resp;
+      answerStatusSelect.value = status;
+      const row = duvidasData.find(d => d.ID === id);
+      if (row) answerDoubtPreview.textContent = row['Dúvida'] || '';
+      answerDoubtForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      modal.classList.add('hidden');
+    });
+  });
+  
+  modal.classList.remove('hidden');
+}
+
 // ── MÓDULO DE RELATÓRIOS (TÉCNICOS E GERADOR DINÂMICO) ──
 
 let reportsEventsInitialized = false;
@@ -2104,14 +2294,17 @@ function renderReportsTab() {
     initReportEvents();
     reportsEventsInitialized = true;
   }
+  renderRelatorios();
   generateFilteredReport();
 }
 
 function initReportEvents() {
   const btnSubtabTecnicos = document.getElementById("btn-subtab-tecnicos");
   const btnSubtabGerador = document.getElementById("btn-subtab-gerador");
+  const btnSubtabDinamico = document.getElementById("btn-subtab-dinamico");
   const subtabTecnicosContent = document.getElementById("subtab-tecnicos-content");
   const subtabGeradorContent = document.getElementById("subtab-gerador-content");
+  const subtabDinamicoContent = document.getElementById("subtab-dinamico-content");
   
   // Alternância de Sub-Abas
   btnSubtabTecnicos.addEventListener("click", () => {
@@ -2119,8 +2312,13 @@ function initReportEvents() {
     btnSubtabTecnicos.style.color = "white";
     btnSubtabGerador.style.background = "var(--cms-white)";
     btnSubtabGerador.style.color = "var(--cms-navy)";
+    if(btnSubtabDinamico) {
+      btnSubtabDinamico.style.background = "var(--cms-white)";
+      btnSubtabDinamico.style.color = "var(--cms-navy)";
+    }
     subtabTecnicosContent.classList.remove("hidden");
     subtabGeradorContent.classList.add("hidden");
+    if(subtabDinamicoContent) subtabDinamicoContent.classList.add("hidden");
   });
   
   btnSubtabGerador.addEventListener("click", () => {
@@ -2128,19 +2326,39 @@ function initReportEvents() {
     btnSubtabGerador.style.color = "white";
     btnSubtabTecnicos.style.background = "var(--cms-white)";
     btnSubtabTecnicos.style.color = "var(--cms-navy)";
+    if(btnSubtabDinamico) {
+      btnSubtabDinamico.style.background = "var(--cms-white)";
+      btnSubtabDinamico.style.color = "var(--cms-navy)";
+    }
     subtabGeradorContent.classList.remove("hidden");
     subtabTecnicosContent.classList.add("hidden");
+    if(subtabDinamicoContent) subtabDinamicoContent.classList.add("hidden");
     generateFilteredReport();
   });
-  
+
+  if (btnSubtabDinamico) {
+    btnSubtabDinamico.addEventListener("click", () => {
+      btnSubtabDinamico.style.background = "var(--cms-blue)";
+      btnSubtabDinamico.style.color = "white";
+      btnSubtabTecnicos.style.background = "var(--cms-white)";
+      btnSubtabTecnicos.style.color = "var(--cms-navy)";
+      btnSubtabGerador.style.background = "var(--cms-white)";
+      btnSubtabGerador.style.color = "var(--cms-navy)";
+      subtabDinamicoContent.classList.remove("hidden");
+      subtabTecnicosContent.classList.add("hidden");
+      subtabGeradorContent.classList.add("hidden");
+      renderRelatorios();
+    });
+  }
+
   // Eventos de Filtro no Gerador
   const filterEnt = document.getElementById("rep-filter-entidade");
   const filterTipo = document.getElementById("rep-filter-tipo");
   const filterStat = document.getElementById("rep-filter-status");
   
-  filterEnt.addEventListener("change", generateFilteredReport);
-  filterTipo.addEventListener("change", generateFilteredReport);
-  filterStat.addEventListener("change", generateFilteredReport);
+  if(filterEnt) filterEnt.addEventListener("change", generateFilteredReport);
+  if(filterTipo) filterTipo.addEventListener("change", generateFilteredReport);
+  if(filterStat) filterStat.addEventListener("change", generateFilteredReport);
   
   // Checkboxes de colunas
   const checkboxes = document.querySelectorAll('#report-generator-form input[type="checkbox"]');
@@ -2149,11 +2367,147 @@ function initReportEvents() {
   });
   
   // Ações de exportar
-  document.getElementById("btn-rep-copy").addEventListener("click", copyReportToClipboard);
-  document.getElementById("report-generator-form").addEventListener("submit", (e) => {
+  const btnRepCopy = document.getElementById("btn-rep-copy");
+  if(btnRepCopy) btnRepCopy.addEventListener("click", copyReportToClipboard);
+  
+  const reportGenForm = document.getElementById("report-generator-form");
+  if(reportGenForm) reportGenForm.addEventListener("submit", (e) => {
     e.preventDefault();
     exportReportToCSV();
   });
+}
+
+// ========================
+// FUNÇÕES DAS TASKS 5 E 9
+// ========================
+
+function initColumnToggle() {
+  const btnToggleColumns = document.getElementById("btn-toggle-columns");
+  const columnsDropdown = document.getElementById("columns-dropdown");
+  const toggleCols = document.querySelectorAll(".toggle-col");
+
+  if (btnToggleColumns && columnsDropdown) {
+    btnToggleColumns.addEventListener("click", () => {
+      columnsDropdown.classList.toggle("hidden");
+    });
+    
+    document.addEventListener("click", (e) => {
+      if (!btnToggleColumns.contains(e.target) && !columnsDropdown.contains(e.target)) {
+        columnsDropdown.classList.add("hidden");
+      }
+    });
+  }
+
+  const savedCols = JSON.parse(localStorage.getItem("cms_hidden_columns") || "[]");
+  
+  toggleCols.forEach(checkbox => {
+    const colClass = checkbox.getAttribute("data-col");
+    if (savedCols.includes(colClass)) {
+      checkbox.checked = false;
+      hideColumn(colClass, true);
+    }
+    
+    checkbox.addEventListener("change", (e) => {
+      const col = e.target.getAttribute("data-col");
+      hideColumn(col, !e.target.checked);
+      
+      const currentHidden = Array.from(toggleCols).filter(cb => !cb.checked).map(cb => cb.getAttribute("data-col"));
+      localStorage.setItem("cms_hidden_columns", JSON.stringify(currentHidden));
+    });
+  });
+}
+
+function hideColumn(colClass, hide) {
+  const styleElId = "style-hide-" + colClass;
+  let styleEl = document.getElementById(styleElId);
+  
+  function getColumnIndex(cls) {
+    const map = {
+      "col-entidade": 2, "col-num": 3, "col-parl": 5, "col-val": 7, "col-status": 8, "col-acoes": 9
+    };
+    return map[cls] || 0;
+  }
+  
+  if (hide) {
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleElId;
+      styleEl.innerHTML = `.${colClass} { display: none !important; } th:nth-child(${getColumnIndex(colClass)}), td:nth-child(${getColumnIndex(colClass)}) { display: none !important; }`;
+      document.head.appendChild(styleEl);
+    }
+  } else {
+    if (styleEl) {
+      styleEl.remove();
+    }
+  }
+}
+
+function renderRelatorios() {
+  const container = document.getElementById("dynamic-reports-container");
+  if (!container) return;
+  
+  const statusCounts = {};
+  const parlVals = {};
+  const entVals = {};
+  
+  emendasData.forEach(row => {
+    const status = row["Status"] || "Desconhecido";
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+    
+    const parl = row["Parlamentar / Autor"] || "Não Informado";
+    const val = parseFloat(row["Valor"]) || 0;
+    parlVals[parl] = (parlVals[parl] || 0) + val;
+    
+    const ent = row["Entidade"] || "Não Informada";
+    entVals[ent] = (entVals[ent] || 0) + val;
+  });
+  
+  const sortedParl = Object.entries(parlVals).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const sortedEnt = Object.entries(entVals).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  
+  const formatCurrency = val => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  
+  const renderBars = (dataArray, maxValue) => dataArray.map(([label, val]) => {
+    const pct = maxValue > 0 ? (val / maxValue) * 100 : 0;
+    return `
+      <div style="margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-weight: 600; color: var(--cms-navy);">
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${label}</span>
+          <span>${formatCurrency(val)}</span>
+        </div>
+        <div style="background: var(--cms-off); height: 8px; border-radius: 4px; overflow: hidden;">
+          <div style="width: ${pct}%; background: var(--cms-blue); height: 100%; border-radius: 4px;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  const renderStatus = () => Object.entries(statusCounts).map(([status, count]) => {
+    return `
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cms-border); padding: 8px 0;">
+        <span style="font-size: 0.85rem; color: var(--cms-navy); font-weight: 600;">${status}</span>
+        <span style="background: var(--cms-yellow); color: var(--cms-navy); font-weight: bold; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">${count}</span>
+      </div>
+    `;
+  }).join('');
+  
+  const maxParl = sortedParl.length ? sortedParl[0][1] : 0;
+  const maxEnt = sortedEnt.length ? sortedEnt[0][1] : 0;
+  
+  container.innerHTML = `
+    <div style="background: white; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); padding: 15px;">
+      <h4 style="margin-bottom: 15px; color: var(--cms-navy); font-family: var(--font-display);"><i class="fa-solid fa-list-check"></i> Propostas por Status</h4>
+      ${renderStatus()}
+    </div>
+    <div style="background: white; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); padding: 15px;">
+      <h4 style="margin-bottom: 15px; color: var(--cms-navy); font-family: var(--font-display);"><i class="fa-solid fa-user-tie"></i> Top 5 Parlamentares (Valores)</h4>
+      ${renderBars(sortedParl, maxParl)}
+    </div>
+    <div style="background: white; border: 1px solid var(--cms-border); border-radius: var(--border-radius-sm); padding: 15px;">
+      <h4 style="margin-bottom: 15px; color: var(--cms-navy); font-family: var(--font-display);"><i class="fa-solid fa-hospital"></i> Top 5 Entidades (Valores)</h4>
+      ${renderBars(sortedEnt, maxEnt)}
+    </div>
+  `;
 }
 
 function getFilteredReportData() {
@@ -2354,5 +2708,48 @@ function copyReportToClipboard() {
   navigator.clipboard.writeText(textContent).then(() => {
     showAlert("success", "Copiado", "Os dados filtrados foram copiados para a área de transferência!");
   });
+}
+
+// ========================
+// FUNÇÃO EXPORTAR CSV (DASHBOARD)
+// ========================
+
+function exportFilteredDataToCSV() {
+  if (!currentFilteredData || currentFilteredData.length === 0) {
+    showAlert("warning", "Nenhum dado", "Não há dados filtrados para exportar.");
+    return;
+  }
+  
+  // Extrair todos os cabecalhos baseados no primeiro registro
+  const headers = ["Data de Envio", "Entidade", "Número da Emenda", "Tipo", "Parlamentar / Autor", "Resolução/Documento", "Valor", "Objeto/Finalidade", "Status"];
+  
+  let csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(";") + "\n";
+  
+  currentFilteredData.forEach(row => {
+    const line = headers.map(header => {
+      let val = row[header];
+      if (header === "Valor") {
+        val = (parseFloat(val) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else if (header === "Data de Envio" && val) {
+        const d = new Date(val);
+        val = !isNaN(d.getTime()) ? d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'}) : val;
+      }
+      
+      let strVal = val !== undefined && val !== null ? val.toString().replace(/"/g, '""') : "";
+      return `"${strVal}"`;
+    });
+    
+    csvContent += line.join(";") + "\n";
+  });
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `emendas_filtradas_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  showAlert("success", "Exportado", "Arquivo CSV gerado com sucesso!");
 }
 
